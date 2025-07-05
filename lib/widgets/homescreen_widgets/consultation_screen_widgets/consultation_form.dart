@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/consultation_screen_widgets/specialist_selection.dart';
+import 'package:luminarawebsite/widgets/homescreen_widgets/consultation_screen_widgets/specialist_selection.dart';
+import '../../../utils/constants/colors.dart';
 import 'consultation_toggle.dart';
 import 'date_time_selection.dart';
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
-
 import '../../screens/homescreen/safe_space/safetalk.dart';
+import '../../utils/constants/colors.dart';
 
 
 class SafeSpaceCard extends StatelessWidget {

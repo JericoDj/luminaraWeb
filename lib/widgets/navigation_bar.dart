@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../screens/accessDeniedPage.dart';
 import '../screens/account_screen/account.dart';
 import '../screens/book_now/booknowscreen.dart';
@@ -29,6 +29,7 @@ class NavigationBarMenu extends StatefulWidget {
 }
 
 class _NavigationBarMenuState extends State<NavigationBarMenu> {
+  late Future<List<Map<String, dynamic>>> _carouselImages;
 
 
 
@@ -38,7 +39,10 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
 
   @override
   void initState() {
+
     super.initState();
+    _carouselImages = fetchCarouselImages();
+
 
     // ✅ Call method to get user and proceed
     _loadUserAndProceed();
@@ -65,6 +69,34 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
 
 
   }
+
+  Future<List<Map<String, dynamic>>> fetchCarouselImages() async {
+    try {
+      // Fetch the images from Firestore
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('contents').doc('homescreen').get();
+      var data = snapshot.data() as Map<String, dynamic>;
+
+      List<Map<String, dynamic>> allImages = [];
+
+      // Loop through the keys in the document to find all image fields (image3, image4, etc.)
+      data.forEach((key, value) {
+        if (key.startsWith('image')) {
+          // Add the image data to the list if it's an image field
+          allImages.add(value);
+        }
+      });
+
+      // Print the results to the console for debugging
+      print("Fetched Carousel Images: $allImages");
+
+      // Return the combined list of all images
+      return allImages;
+    } catch (e) {
+      print("Error fetching carousel images: $e");
+      return []; // If error occurs, return empty list
+    }
+  }
+
 
   Future<void> _loadUserAndProceed() async {
     final userStorage = UserStorage();

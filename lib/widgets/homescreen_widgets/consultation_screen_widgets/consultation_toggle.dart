@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
 
+import '../../../utils/constants/colors.dart';
 class ConsultationToggle extends StatelessWidget {
   final String selectedType;
   final Function(String) onToggle;

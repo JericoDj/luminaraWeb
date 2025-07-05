@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
-
+import '../../utils/constants/colors.dart';
 import 'TIcket_Popup_widget.dart';
 
 class ContactSupportSection extends StatelessWidget {

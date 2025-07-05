@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:llps_mental_app/widgets/accounts_screen/ticket_detail_page.dart';
+import 'package:luminarawebsite/widgets/accounts_screen/ticket_detail_page.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../utils/constants/colors.dart';

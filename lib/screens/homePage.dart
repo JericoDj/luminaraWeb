@@ -1,65 +1,267 @@
+import 'package:carousel_slider/carousel_options.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:luminarawebsite/CommunityScreen.dart';
+import 'package:luminarawebsite/screens/account_screen/account.dart';
+import 'package:luminarawebsite/screens/book_now/booknowscreen.dart';
+import 'package:luminarawebsite/screens/growth_garden/growth_garden.dart';
+import 'package:luminarawebsite/screens/safe_talks/safe_talks.dart';
+import 'package:luminarawebsite/utils/constants/colors.dart';
 
 import '../widgets/homescreen_widgets/safe_talk_button.dart';
-import '../widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
+import 'MainContentArea.dart';
 
-class Homepage extends StatelessWidget {
+enum NavItem {
+  home,
+  growthGarden,
+  bookNow,
+  safeCommunity,
+  account,
+
+}
+
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Luminara Web App'),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.account_circle)),
-        ],
-      ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Navigation Sidebar
-          Container(
-            width: 250,
-            decoration: BoxDecoration(
-              color: Colors.blueGrey[50],
-              border: Border(right: BorderSide(color: Colors.grey.shade300)),
-            ),
-            child: const NavigationSidebar(),
-          ),
+  State<Homepage> createState() => _HomepageState();
+}
 
-          // Main Content Area
-          const Expanded(
-            flex: 9,
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: MainContentArea(),
+class _HomepageState extends State<Homepage> {
+  NavItem _currentNavItem = NavItem.home;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 800;
+
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        toolbarHeight: 65,
+        title:  Image.asset(
+
+          'assets/images/appbar_title.png',
+          height: MediaQuery
+              .of(context)
+              .size
+              .height * 0.08,
+          fit: BoxFit.contain,
+        ),
+        elevation: 2,
+        flexibleSpace: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.orange,
+                      Colors.orangeAccent,
+                      Colors.green,
+                      Colors.greenAccent,
+                    ],
+                    stops: const [0.0, 0.5, 0.5, 1.0],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        actions: isLargeScreen
+            ? [
+          _buildAppBarButton(Icons.home, 'Home', NavItem.home),
+          _buildAppBarButton(Icons.eco, 'Growth Garden', NavItem.growthGarden),
+          _buildAppBarButton(Icons.calendar_today, 'Book Now', NavItem.bookNow),
+          _buildAppBarButton(Icons.group, 'Community', NavItem.safeCommunity),
+          const SizedBox(width: 20),
+          _buildAppBarButton(Icons.account_circle, 'Account', NavItem.account),
+
+          const SizedBox(width: 12),
+        ]
+            : null,
+        leading: isLargeScreen
+            ? null
+            : IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+      ),
+      drawer: isLargeScreen ? null : _buildNavigationDrawer(),
+      body: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: _buildMainContent())),
+    );
+  }
+
+  Widget _buildAppBarButton(IconData icon, String label, NavItem item) {
+    final bool isSelected = _currentNavItem == item;
+
+    return TextButton.icon(
+      onPressed: () => _selectNavItem(item),
+      icon: Icon(
+        icon,
+        color: isSelected ? MyColors.color2 : Colors.black87,
+        size: 20,
+      ),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? MyColors.color2 : Colors.black87,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontSize: 14,
+        ),
+      ),
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.black87,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+      ),
+    );
+  }
+
+
+  Widget _buildNavigationDrawer() {
+    return Drawer(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.blueGrey[50],
+        ),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const SizedBox(height: 20),
+            _buildDrawerHeader(),
+            const SizedBox(height: 10),
+            ..._buildDrawerItems(),
+            const SizedBox(height: 20),
+            const Divider(),
+            ..._buildSecondaryItems(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(
+        'MAIN NAVIGATION',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          color: Colors.grey,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildDrawerItems() {
+    return [
+      _buildDrawerItem(Icons.home, 'Home', NavItem.home),
+      _buildDrawerItem(Icons.eco, 'Growth Garden', NavItem.growthGarden),
+      _buildDrawerItem(Icons.calendar_today, 'Book Now', NavItem.bookNow),
+      _buildDrawerItem(Icons.group, 'Safe Community', NavItem.safeCommunity),
+    ];
+  }
+
+  List<Widget> _buildSecondaryItems() {
+    return [
+      _buildDrawerItem(Icons.account_circle, 'Account', NavItem.account),
+
+    ];
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, NavItem item) {
+    final isSelected = _currentNavItem == item;
+
+    return ListTile(
+      leading: Icon(icon, size: 22, color: isSelected ? Colors.blue : null),
+      title: Text(title, style: TextStyle(
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected ? Colors.blue : Colors.black,
+      )),
+      tileColor: isSelected ? Colors.blue[50] : null,
+      horizontalTitleGap: 0,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+      onTap: () {
+        _selectNavItem(item);
+        Navigator.pop(context); // Close the drawer after selection
+      },
+    );
+  }
+
+  void _selectNavItem(NavItem item) {
+    setState(() {
+      _currentNavItem = item;
+    });
+  }
+
+  Widget _buildMainContent() {
+    switch (_currentNavItem) {
+      case NavItem.home:
+        return MainContentArea();
+      case NavItem.growthGarden:
+        return GrowthGardenScreen();
+      case NavItem.bookNow:
+        return BookNowScreen();
+      case NavItem.safeCommunity:
+        return CommunityScreen();
+      case NavItem.account:
+        return AccountScreen();
+
+    }
+  }
+
+  Widget _buildPlaceholder(String text) {
+    return Center(
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
 class NavigationSidebar extends StatelessWidget {
-  const NavigationSidebar({super.key});
+  final NavItem currentNavItem;
+  final Function(NavItem) onSelect;
+
+  const NavigationSidebar({
+    super.key,
+    required this.currentNavItem,
+    required this.onSelect,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        const SizedBox(height: 20),
-        _buildNavHeader(),
-        const SizedBox(height: 10),
-        ..._buildNavItems(),
-        const SizedBox(height: 20),
-        const Divider(),
-        ..._buildSecondaryItems(),
-      ],
+    return Container(
+      width: 250,
+      decoration: BoxDecoration(
+        color: Colors.blueGrey[50],
+        border: Border(right: BorderSide(color: Colors.grey.shade300)),
+      ),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const SizedBox(height: 20),
+          _buildNavHeader(),
+          const SizedBox(height: 10),
+          ..._buildNavItems(),
+          const SizedBox(height: 20),
+          const Divider(),
+          ..._buildSecondaryItems(),
+        ],
+      ),
     );
   }
 
@@ -78,195 +280,34 @@ class NavigationSidebar extends StatelessWidget {
   }
 
   List<Widget> _buildNavItems() {
-    final navItems = [
-      {'icon': Icons.dashboard, 'title': 'Dashboard'},
-      {'icon': Icons.shopping_cart, 'title': 'Orders'},
-      {'icon': Icons.people, 'title': 'Customers'},
-      {'icon': Icons.analytics, 'title': 'Analytics'},
-      {'icon': Icons.inventory, 'title': 'Products'},
-      {'icon': Icons.category, 'title': 'Categories'},
+    return [
+      _buildNavItem(Icons.home, 'Home', NavItem.home),
+      _buildNavItem(Icons.eco, 'Growth Garden', NavItem.growthGarden),
+      _buildNavItem(Icons.calendar_today, 'Book Now', NavItem.bookNow),
+      _buildNavItem(Icons.group, 'Safe Community', NavItem.safeCommunity),
     ];
-
-    return navItems.map((item) {
-      return ListTile(
-        leading: Icon(item['icon'] as IconData, size: 22),
-        title: Text(item['title'] as String),
-        horizontalTitleGap: 0,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-        onTap: () {},
-      );
-    }).toList();
   }
 
   List<Widget> _buildSecondaryItems() {
-    final secondaryItems = [
-      {'icon': Icons.settings, 'title': 'Settings'},
-      {'icon': Icons.help, 'title': 'Help Center'},
-      {'icon': Icons.logout, 'title': 'Logout'},
+    return [
+      _buildNavItem(Icons.account_circle, 'Account', NavItem.account),
+
     ];
-
-    return secondaryItems.map((item) {
-      return ListTile(
-        leading: Icon(item['icon'] as IconData, size: 22),
-        title: Text(item['title'] as String),
-        horizontalTitleGap: 0,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-        onTap: () {},
-      );
-    }).toList();
   }
-}
 
-class MainContentArea extends StatelessWidget {
-  const MainContentArea({super.key});
+  Widget _buildNavItem(IconData icon, String title, NavItem item) {
+    final isSelected = currentNavItem == item;
 
-  @override
-  Widget build(BuildContext context) {
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ProgressDashboardCard(),
-          const SizedBox(height: 20),
-          SafeTalkButton(),
-          const SizedBox(height: 10),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: _carouselImages,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
-
-              final images = snapshot.data ?? [];
-
-              if (images.isEmpty) {
-                return Text('No images available');
-              }
-
-              return SizedBox(
-                height: 280,
-                child: CarouselSlider(
-                  items: images.map((image) => _buildCarouselItem(image)).toList(),
-                  options: CarouselOptions(
-                    enlargeCenterPage: true,
-                    autoPlay: true,
-                    aspectRatio: 16 / 9,
-                    autoPlayCurve: Curves.easeInOut,
-                    enableInfiniteScroll: true,
-                    autoPlayAnimationDuration: const Duration(seconds: 1),
-                    viewportFraction: 0.8,
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
+    return ListTile(
+      leading: Icon(icon, size: 22, color: isSelected ? Colors.blue : null),
+      title: Text(title, style: TextStyle(
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected ? Colors.blue : Colors.black,
+      )),
+      tileColor: isSelected ? Colors.blue[50] : null,
+      horizontalTitleGap: 0,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+      onTap: () => onSelect(item),
     );
-  }
-
-  Widget _buildStatsGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 4,
-      crossAxisSpacing: 20,
-      mainAxisSpacing: 20,
-      childAspectRatio: 1.5,
-      children: [
-        _buildStatCard('Total Sales', '\$24,580', Icons.attach_money, Colors.blue),
-        _buildStatCard('New Customers', '1,248', Icons.people_alt, Colors.green),
-        _buildStatCard('Order Volume', '845', Icons.shopping_bag, Colors.orange),
-        _buildStatCard('Conversion Rate', '24.8%', Icons.trending_up, Colors.purple),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-                Icon(icon, color: color),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '+12.4% from last month',
-              style: TextStyle(color: Colors.green),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentActivity() {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Recent Activity',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 15),
-            DataTable(
-              columns: const [
-                DataColumn(label: Text('Customer')),
-                DataColumn(label: Text('Order')),
-                DataColumn(label: Text('Date')),
-                DataColumn(label: Text('Status')),
-              ],
-              rows: [
-                _buildDataRow('John Doe', '#ORD-1234', 'Jul 4, 2023', 'Completed'),
-                _buildDataRow('Jane Smith', '#ORD-1235', 'Jul 3, 2023', 'Processing'),
-                _buildDataRow('Robert Johnson', '#ORD-1236', 'Jul 2, 2023', 'Shipped'),
-                _buildDataRow('Emily Wilson', '#ORD-1237', 'Jul 1, 2023', 'Completed'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  DataRow _buildDataRow(String customer, String order, String date, String status) {
-    return DataRow(cells: [
-      DataCell(Text(customer)),
-      DataCell(Text(order)),
-      DataCell(Text(date)),
-      DataCell(
-        Chip(
-          label: Text(status),
-          backgroundColor: status == 'Completed'
-              ? Colors.green.shade100
-              : Colors.orange.shade100,
-        ),
-      ),
-    ]);
   }
 }

@@ -36,8 +36,8 @@ class _UserAccountSectionState extends State<UserAccountSection> {
 
     if (userId == null) {
       setState(() {
-        _userName = "User not found";
-        _companyName = "N/A";
+        _userName = "John Doe";
+        _companyName = "CMPNYTST001";
       });
       return;
     }

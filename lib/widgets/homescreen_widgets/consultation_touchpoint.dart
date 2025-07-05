@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
 
 import '../../screens/homescreen/consultation_touchpoint/consultation_screen.dart';
+import '../../utils/constants/colors.dart';
 
 class ConsultationTouchpointCard extends StatelessWidget {
   const ConsultationTouchpointCard({Key? key}) : super(key: key);

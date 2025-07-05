@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/achievements_popup.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/daily_mood_popup.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/mood_trends_popup.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/progress_popup.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/stress_level_popup.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/progress_buttons.dart';
-
+import 'package:luminarawebsite/widgets/homescreen_widgets/wellness_tracking/progress_buttons.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../../controllers/moodTrackingController.dart';
 import '../../../controllers/progress_controller.dart';
