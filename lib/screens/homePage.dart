@@ -110,7 +110,7 @@ class _HomepageState extends State<Homepage> {
       onPressed: () => _selectNavItem(item),
       icon: Icon(
         icon,
-        color: isSelected ? MyColors.color2 : Colors.black87,
+        color: isSelected ? MyColors.color2 : Colors.black54,
         size: 20,
       ),
       label: Text(

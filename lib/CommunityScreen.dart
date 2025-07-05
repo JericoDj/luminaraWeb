@@ -30,7 +30,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
         children: [
           const CircleAvatar(
             radius: 20,
-            backgroundImage: AssetImage('assets/images/avatar_placeholder.png'),
+            backgroundImage: AssetImage('assets/avatars/Avatar2.jpeg'),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -71,7 +71,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
             Row(
               children: const [
                 CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/female_avatar.png'),
+                  backgroundImage: AssetImage('assets/avatars/Avatar2.jpeg'),
                 ),
                 SizedBox(width: 10),
                 Column(
