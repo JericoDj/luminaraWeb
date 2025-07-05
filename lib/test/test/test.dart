@@ -10,7 +10,7 @@ Future<void> main() async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       name: "WebRTC Video Call",
-      options: DefaultFirebaseOptions.currentPlatform,
+      // options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 
