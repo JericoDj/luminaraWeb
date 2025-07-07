@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../screens/homescreen/calling_customer_support_screen.dart';
@@ -115,10 +116,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                   onHorizontalDragEnd: (_) {
                     if (_dragReachedEnd) {
                       Navigator.of(context).pop();
-                      Get.to(() => CallingCustomerSupportScreen(
-                        roomId: null,
-                        isCaller: true,
-                      ));
+                      context.push('/calling-customer-support');
                     } else {
                       setState(() => _dragPosition = 0);
                     }

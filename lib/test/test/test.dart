@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'utils/firebase_options.dart';
+
 import 'services/webrtc_service.dart';
 import 'pages/homePage/home_page.dart';
 

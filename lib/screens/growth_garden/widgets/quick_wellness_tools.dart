@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../utils/constants/colors.dart';
 import '../mindful_breathing_techniques/4-7-8_breathing.dart';
 import '../mindful_breathing_techniques/alternate_nostril_breathing.dart';
@@ -129,40 +130,35 @@ class QuickWellnessTools extends StatelessWidget {
 
   // 🚀 Navigate to Breathing Screens
   void _navigateToBreathingScreen(BuildContext context, String breathingType) {
-    Widget screen;
     switch (breathingType) {
       case 'Box Breathing':
-        screen = const BoxBreathingScreen();
+        context.go('/box-breathing');
         break;
       case '4-7-8 Breathing':
-        screen = const FourSevenEightBreathingScreen();
+        context.go('/4-7-8-breathing');
         break;
       case 'Alternate Nostril Breathing':
-        screen = const AlternateNostrilBreathingScreen();
+        context.go('/alternate-nostril-breathing');
         break;
       default:
-        return;
+        break;
     }
-    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
   // 🚀 Navigate to Meditation Screens
   void _navigateToMeditationScreen(BuildContext context, String meditationType) {
-    Widget screen;
     switch (meditationType) {
       case 'Body Scan Meditation':
-        screen = const BodyScanMeditationScreen();
+        context.push('/meditation/body-scan');
         break;
       case 'Gratitude Meditation':
-        screen = const
-        GratitudeMeditationScreen();
+        context.push('/meditation/gratitude');
         break;
       case 'Breath Awareness Meditation':
-        screen = const BreathAwarenessMeditationScreen();
+        context.push('/meditation/breath-awareness');
         break;
       default:
-        return;
+        break;
     }
-    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 }

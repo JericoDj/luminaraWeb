@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signature/signature.dart';
 import '../../utils/storage/user_storage.dart';
 import '../../widgets/homescreen_widgets/eSignPopup.dart';
@@ -481,7 +482,8 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    Get.offAll(() => NavigationBarMenu(dailyCheckIn: false));
+                    Navigator.pop(context);
+                   context.pushReplacement("/account");
                   },
                   child: Container(
                     width: double.infinity,

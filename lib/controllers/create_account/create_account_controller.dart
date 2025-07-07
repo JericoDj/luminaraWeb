@@ -2,12 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../utils/storage/user_storage.dart';
 import '../../widgets/navigation_bar.dart';
 import '../login_controller/loginController.dart';
 
-class SignUpController extends GetxController {
+class SignUpController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final UserStorage _userStorage = UserStorage(); // User storage for UID
@@ -40,8 +41,7 @@ class SignUpController extends GetxController {
   }
 
   /// **🔹 Sign Up Function**
-  Future<void> signUp() async {
-    // Validate form first
+  Future<void> signUp(BuildContext context) async {
     if (!formKey.currentState!.validate()) return;
 
     isLoading.value = true;
@@ -53,72 +53,48 @@ class SignUpController extends GetxController {
     final String fullName = fullNameController.text.trim();
     final String phone = phoneController.text.trim();
 
-    print("📢 [DEBUG] Checking Firestore for company ID: $companyId");
-
     try {
-      // 1. Verify company exists
+      // Step 1: Check company ID
       final companyRef = await _firestore.collection("companies").doc(companyId).get();
       if (!companyRef.exists) {
-        print("❌ Company ID '$companyId' does not exist!");
-        Get.snackbar("Error", "Company ID does not exist.",
-            backgroundColor: Colors.red, colorText: Colors.white);
+        _showSnackBar(context, "Company ID does not exist.", Colors.red);
         return;
       }
-      print("✅ Company ID '$companyId' exists.");
 
-      // 2. Check if email exists in company's users subcollection
+      // Step 2: Check email in subcollection
       final usersRef = _firestore.collection("companies").doc(companyId).collection("users");
       final userSnapshot = await usersRef.where('email', isEqualTo: email).get();
       if (userSnapshot.docs.isEmpty) {
-        print("❌ Email '$email' not registered in company '$companyId'.");
-        Get.snackbar("Error", "Your email is not registered under this company.",
-            backgroundColor: Colors.red, colorText: Colors.white);
+        _showSnackBar(context, "Your email is not registered under this company.", Colors.red);
         return;
       }
 
-      print("✅ Email '$email' found under company '$companyId'.");
-
-      // 3. Check if user already exists in Firebase Auth
+      // Step 3: Check if email already exists in Auth
       User? existingUser;
       try {
         final methods = await _auth.fetchSignInMethodsForEmail(email);
         if (methods.isNotEmpty) {
-          final signInResult = await _auth.signInWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
+          final signInResult = await _auth.signInWithEmailAndPassword(email: email, password: password);
           existingUser = signInResult.user;
-
-          if (existingUser != null) {
-            print("✅ Existing Firebase Auth user found: ${existingUser.uid}");
-          } else {
-            print("❌ Sign-in succeeded but user object is null.");
-          }
         }
-      } catch (e) {
-        print("⚠️ Firebase Auth lookup failed. Will try to create user.");
+      } catch (_) {
+        // continue
       }
 
-
-      // 4. Create user if not existing
+      // Step 4: Create new user or reuse existing
       String uid;
       if (existingUser != null) {
         uid = existingUser.uid;
       } else {
-        final userCredential = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
+        final userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
         uid = userCredential.user!.uid;
-        print("🔑 New Firebase user created: UID = $uid");
       }
 
-      // 5. Save UID locally
-      final userStorage = UserStorage();
-      await userStorage.clearUid();
-      await userStorage.saveUid(uid);
+      // Step 5: Save UID locally
+      await _userStorage.clearUid();
+      await _userStorage.saveUid(uid);
 
-      // 6. Save user info to Firestore (users collection)
+      // Step 6: Save to Firestore
       await _firestore.collection("users").doc(uid).set({
         "uid": uid,
         "email": email,
@@ -129,40 +105,39 @@ class SignUpController extends GetxController {
         "24/7_access": false,
       }, SetOptions(merge: true));
 
-      print("✅ User saved in Firestore.");
-
-      // 7. Navigate to main screen
-
-
-
-      _userStorage.clearUid();
-
-      // ✅ Save UID immediately
-      await _userStorage.saveUid(uid); // Make sure this is `await` if async
-
+      // Step 7: Save to storage
       _userStorage.saveFullName(fullName);
       _userStorage.saveCompanyId(companyId);
       _userStorage.saveUsername(username);
-      _userStorage.getPhoneNumber(); // Optional depending on app logic
+      _userStorage.getPhoneNumber();
       await _userStorage.saveFCMToken();
-      loginController.checkAndStoreSafeCommunityAccess();
 
-      Get.offAll(NavigationBarMenu(dailyCheckIn: true));
+      await loginController.checkAndStoreSafeCommunityAccess();
 
-      Get.snackbar("Success", "Account created successfully!",
-          backgroundColor: Colors.green, colorText: Colors.white);
+      // ✅ Navigate to dashboard
+      if (context.mounted) {
+        context.go('/dashboard');
+        _showSnackBar(context, "Account created successfully!", Colors.green);
+      }
     } on FirebaseAuthException catch (e) {
-      print("❌ Firebase Auth Error: ${e.message}");
-      Get.snackbar("Auth Error", e.message ?? "Account creation failed.",
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackBar(context, e.message ?? "Account creation failed.", Colors.red);
     } catch (e) {
-      print("❌ General Error: $e");
-      Get.snackbar("Error", "Something went wrong: ${e.toString()}",
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackBar(context, "Something went wrong: ${e.toString()}", Colors.red);
     } finally {
       isLoading.value = false;
     }
   }
+
+  void _showSnackBar(BuildContext context, String message, Color bgColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: bgColor,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
 
 
 }

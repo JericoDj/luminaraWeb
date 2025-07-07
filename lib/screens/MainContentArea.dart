@@ -37,64 +37,75 @@ class _MainContentAreaState extends State<MainContentArea> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 30,),
-          Image.asset(
-              height: MediaQuery.of(context).size.width*0.10,
-              "assets/images/Logo_Square.png"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Image.asset(
+                      height: MediaQuery.of(context).size.width*0.10,
+                      "assets/images/Logo_Square.png"),
+                  SizedBox(height: 20,),
 
-          SizedBox(height: 20,),
-
-          const Text(
-            "Welcome to Light Level Psychological Solutions",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Professional care for your emotional and mental well-being.",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          const SizedBox(height: 10),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: _carouselImages,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
-
-              final images = snapshot.data ?? [];
-              if (images.isEmpty) {
-                return const Text('No images available');
-              }
-
-              return SizedBox(
-                height: MediaQuery.of(context).size.height / 2.5,
-                child: CarouselSlider(
-                  items: images.map((image) => _buildCarouselItem(image)).toList(),
-                  options: CarouselOptions(
-                    enlargeCenterPage: true,
-                    autoPlay: true,
-                    aspectRatio: 16 / 9,
-                    autoPlayCurve: Curves.easeInOut,
-                    enableInfiniteScroll: true,
-                    autoPlayAnimationDuration: const Duration(seconds: 1),
-                    viewportFraction: 1,
+                  const Text(
+                    "Welcome to Light Level Psychological Solutions",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              );
-            },
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Professional care for your emotional and mental well-being.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+              const SizedBox(height: 10),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _carouselImages,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  final images = snapshot.data ?? [];
+                  if (images.isEmpty) {
+                    return const Text('No images available');
+                  }
+
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height / 2.5,
+                    child: CarouselSlider(
+                      items: images.map((image) => _buildCarouselItem(image)).toList(),
+                      options: CarouselOptions(
+                        enlargeCenterPage: true,
+                        autoPlay: true,
+                        aspectRatio: 16 / 9,
+                        autoPlayCurve: Curves.easeInOut,
+                        enableInfiniteScroll: true,
+                        autoPlayAnimationDuration: const Duration(seconds: 1),
+                        viewportFraction: 1,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
+
+
+
           const SizedBox(height: 20),
           SafeTalkButton(),
           const SizedBox(height: 20),

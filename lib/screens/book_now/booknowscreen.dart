@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../controllers/session_controller.dart';
@@ -23,12 +24,12 @@ class _BookNowScreenState extends State<BookNowScreen> {
   String? _selectedService;
 
   // Access SessionController to get session data
-  late SessionController sessionController;
+  // late SessionController sessionController;
 
   @override
   void initState() {
     super.initState();
-    sessionController = Get.find<SessionController>(); // Initialize controller
+    // sessionController = Get.find<SessionController>(); // Initialize controller
 
     // Show welcome dialog when the screen loads
     Future.delayed(Duration.zero, () {
@@ -205,12 +206,17 @@ class _BookNowScreenState extends State<BookNowScreen> {
 
   void _bookSession() {
     if (_selectedDate != null && _selectedTime != null && _selectedService != null) {
-      Get.to(() => BookingReviewScreen(
-        consultationType: _selectedConsultationType,
-        selectedDate: DateFormat('EEE, MMM d').format(_selectedDate!),
-        selectedTime: _selectedTime!.format(context),
-        service: _selectedService!,
-      ));
+      context.push(
+        Uri(
+          path: '/booking-review',
+          queryParameters: {
+            'consultationType': _selectedConsultationType,
+            'selectedDate': DateFormat('EEE, MMM d').format(_selectedDate!),
+            'selectedTime': _selectedTime!.format(context),
+            'service': _selectedService!,
+          },
+        ).toString(),
+      );
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:luminarawebsite/screens/homescreen/safe_space/queue_screen.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../test/test/pages/callPage/call_page.dart';
@@ -103,11 +104,9 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
 
         print("✅ Session queued with docId: $newDocId");
 
-        Get.to(() => QueueScreen(
-          sessionType: formattedSessionType,
-          userId: userId!,
-          queueDocId: newDocId,
-        ));
+        context.go(
+          '/safe_talk/queue/$formattedSessionType/$userId/$newDocId',
+        );
       } catch (e) {
         print("❌ Firestore Error: $e");
         Get.snackbar("Error", "Failed to start new session: $e");

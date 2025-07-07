@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../../utils/constants/colors.dart';
-import 'mindhubscreen.dart';
 import 'feature_cards.dart';
 
 class MindHubButton extends StatelessWidget {
@@ -25,7 +23,7 @@ class MindHubButton extends StatelessWidget {
             description:
             'Explore mental health resources: articles, videos, and eBooks for self-help support.',
             onTap: () {
-              Get.to(() => const MindHubScreen(category: 'Articles'));
+              context.go('/mindhub/Articles');
             },
             width: width,
           ),

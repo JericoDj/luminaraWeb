@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import '../../screens/homescreen/safe_space/safetalk.dart';
 import '../../utils/constants/colors.dart';
 
@@ -7,7 +8,7 @@ class SafeTalkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => SafeTalk()),
+      onTap: () => context.push('/safe-talk'),
       child: Container(
         width: 200,
         padding: EdgeInsets.all(2), // Creates a thick border effect

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../data/quiz_data.dart';
 import 'QuizScreen.dart';
@@ -21,7 +22,7 @@ class InsightQuestButton extends StatelessWidget {
             icon: Icons.psychology,
             description: 'Science-backed quizzes for better self-awareness.',
             onTap: () {
-              Get.to(() => const InsightQuestScreen());
+              context.go('/insight-quest');
             },
             width: MediaQuery.of(context).size.width < 510
                 ? MediaQuery.of(context).size.width / 2 - 20
@@ -100,7 +101,7 @@ class InsightQuestScreen extends StatelessWidget {
               const SizedBox(height: 20),
               _buildCategoryGrid(context),
               const SizedBox(height: 30),
-              _buildFeaturedQuizzes(),
+              _buildFeaturedQuizzes(context),
             ],
           ),
         ),
@@ -160,9 +161,9 @@ class InsightQuestScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (category == "Mindfulness" || category == "Resilience") {
-          Get.to(() => QuizScreen(category: category,));
+          context.go('/quiz/${Uri.encodeComponent(category)}');
         } else {
-          Get.to(() => QuizScreen(category: category,));
+          context.go('/quiz/${Uri.encodeComponent(category)}');
         }
       },
       child: AnimatedContainer(
@@ -205,7 +206,7 @@ class InsightQuestScreen extends StatelessWidget {
   }
 
   /// 🌟 Featured Quizzes with Engaging Colors & Descriptions
-  Widget _buildFeaturedQuizzes() {
+  Widget _buildFeaturedQuizzes(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -222,9 +223,9 @@ class InsightQuestScreen extends StatelessWidget {
           child: PageView(
             scrollDirection: Axis.horizontal,
             children: [
-              _featuredQuizCard("Deep Focus", "Train your brain to maintain cation.", Colors.indigo, Icons.visibility),
-              _featuredQuizCard("Mental Clarity", "Sharpen your ability to think critically.", Colors.purple, Icons.lightbulb),
-              _featuredQuizCard("Positivity Boost", "Develop a more optimistic mindset.", Colors.pinkAccent, Icons.mood),
+              _featuredQuizCard(context, "Deep Focus", "Train your brain to maintain cation.", Colors.indigo, Icons.visibility),
+              _featuredQuizCard(context, "Mental Clarity", "Sharpen your ability to think critically.", Colors.purple, Icons.lightbulb),
+              _featuredQuizCard(context, "Positivity Boost", "Develop a more optimistic mindset.", Colors.pinkAccent, Icons.mood),
             ],
           ),
         ),
@@ -233,7 +234,7 @@ class InsightQuestScreen extends StatelessWidget {
   }
 
   /// 🎭 Featured Quiz Cards with Modern Look
-  Widget _featuredQuizCard(String title, String description, Color color, IconData icon) {
+  Widget _featuredQuizCard(BuildContext context, String title, String description, Color color, IconData icon) {
     double width;
     if (MediaQueryData.fromView(WidgetsBinding.instance.window).size.width < 510) {
       width = MediaQueryData.fromView(WidgetsBinding.instance.window).size.width / 2 - 30;
@@ -246,7 +247,7 @@ class InsightQuestScreen extends StatelessWidget {
       child: Container(
         width: width - 15,
         height: width - 15,
-        padding: const EdgeInsets.all(3), // Border thickness
+        padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: const LinearGradient(
@@ -258,35 +259,35 @@ class InsightQuestScreen extends StatelessWidget {
               Colors.orange,
               MyColors.color2,
             ],
-            stops: [0.0, 0.5, 0.51, 1.0], // Ensures exact half-split
+            stops: [0.0, 0.5, 0.51, 1.0],
           ),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: Colors.white, // ✅ White inner box
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
           child: InkWell(
             onTap: () {
-              String selectedCategory = quizData.containsKey(title) ? title : "Mindfulness"; // ✅ Prevent crashes
-              Get.to(() => QuizScreen(category: selectedCategory, ));
+              String selectedCategory = quizData.containsKey(title) ? title : "Mindfulness";
+              context.go('/quiz/${Uri.encodeComponent(selectedCategory)}');
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 36, color: Colors.grey[800]), // ✅ Icon size same as MindHub
+                Icon(icon, size: 36, color: Colors.grey[800]),
                 const SizedBox(height: 8),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors.color1), // ✅ Text color matches MindHub
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors.color1),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 5),
                 Text(
                   description,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: MyColors.color1.withOpacity(0.8)), // ✅ Slightly lighter shade of MyColors.color1
+                  style: TextStyle(fontSize: 14, color: MyColors.color1.withOpacity(0.8)),
                 ),
               ],
             ),
