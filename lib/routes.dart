@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:luminarawebsite/screens/MainContentArea.dart';
+import 'package:luminarawebsite/screens/account_screen/accounts_privacy/accounts_privacy_page.dart';
+import 'package:luminarawebsite/screens/account_screen/app_settings/app_settings_screen.dart';
 import 'package:luminarawebsite/screens/createaccount.dart';
 import 'package:luminarawebsite/screens/forgotpassword.dart';
 import 'package:luminarawebsite/screens/growth_garden/mindful_breathing_techniques/4-7-8_breathing.dart';
@@ -13,10 +15,13 @@ import 'package:luminarawebsite/screens/growth_garden/widgets/QuizScreen.dart';
 import 'package:luminarawebsite/screens/growth_garden/widgets/insight_quest.dart';
 import 'package:luminarawebsite/screens/growth_garden/widgets/mindhubscreen.dart';
 import 'package:luminarawebsite/screens/homescreen/booking_review_screen.dart';
+import 'package:luminarawebsite/screens/homescreen/call_ended_screen.dart';
 import 'package:luminarawebsite/screens/homescreen/calling_customer_support_screen.dart';
+import 'package:luminarawebsite/screens/homescreen/safe_space/chat_screen.dart';
 import 'package:luminarawebsite/screens/homescreen/safe_space/queue_screen.dart';
 import 'package:luminarawebsite/screens/homescreen/safe_space/safetalk.dart';
 import 'package:luminarawebsite/screens/loginscreen.dart';
+import 'package:luminarawebsite/widgets/accounts_screen/TIcket_Popup_widget.dart';
 
 
 import 'MainLayout.dart';
@@ -83,6 +88,44 @@ final GoRouter router = GoRouter(
         GoRoute(
           path: '/safe-talk',
           builder: (context, state) => const SafeTalk(), // or SafeTalk() if it's not const
+        ),
+
+        GoRoute(
+          path: '/chat/:userId',
+          builder: (context, state) {
+            final userId = state.pathParameters['userId']!;
+            return ChatScreen(userId: userId);
+          },
+        ),
+
+        GoRoute(
+          path: '/call-ended',
+          builder: (context, state) => const CallEndedScreen(),
+        ),
+
+        GoRoute(
+          path: '/session-ended',
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(title: const Text("Session Ended")),
+            body: const Center(
+              child: Text(
+                "Your chat session has ended. Please rejoin if needed.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ),
+
+        GoRoute(
+          path: '/queue/:sessionType/:userId/:queueDocId',
+          builder: (context, state) {
+            return QueueScreen(
+              sessionType: state.pathParameters['sessionType']!,
+              userId: state.pathParameters['userId']!,
+              queueDocId: state.pathParameters['queueDocId']!,
+            );
+          },
         ),
 
         GoRoute(
@@ -178,6 +221,21 @@ final GoRouter router = GoRouter(
               service: service,
             );
           },
+        ),
+
+
+        GoRoute(
+          path: '/app-settings',
+          builder: (context, state) => const AppSettingsPage(),
+        ),
+        GoRoute(
+          path: '/account-privacy',
+          builder: (context, state) => const AccountPrivacyPage(),
+        ),
+
+        GoRoute(
+          path: '/support-tickets',
+          builder: (context, state) =>SupportTicketsPage(),
         ),
 
 

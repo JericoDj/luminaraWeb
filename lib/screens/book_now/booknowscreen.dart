@@ -222,17 +222,23 @@ class _BookNowScreenState extends State<BookNowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isFormComplete = _selectedDate != null && _selectedTime != null && _selectedService != null;
+    bool isFormComplete = _selectedDate != null &&
+        _selectedTime != null &&
+        _selectedService != null;
+
+    final bool isLargeScreen = MediaQuery.of(context).size.width > 1100;
 
     return Scaffold(
       backgroundColor: Colors.white,
 
 
-      body: Align(
+      body:
+
+      Align(
         alignment: Alignment.topCenter,
         child: Container(
 
-          width: MediaQuery.of(context).size.width * 0.4,
+          width: isLargeScreen ? MediaQuery.of(context).size.width * 0.4 : double.infinity,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SingleChildScrollView(

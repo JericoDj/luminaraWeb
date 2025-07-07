@@ -136,107 +136,141 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection(chatRoomId)
-                  .orderBy("timestamp", descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-                final messages = snapshot.data!.docs;
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 1100;
+          final horizontalPadding = isSmallScreen
+              ? 15.0
+              : MediaQuery.of(context).size.width * 0.30;
 
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final messageData = messages[index].data() as Map<String, dynamic>;
-                    final isAdmin = messageData["senderId"] == currentAdminUid;
-                    final isSystem = messageData["senderId"] == "system";
+          return Column(
+            children: [
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection(chatRoomId)
+                      .orderBy("timestamp", descending: false)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                    return Align(
-                      alignment: isSystem
-                          ? Alignment.center
-                          : isAdmin
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                    final messages = snapshot.data!.docs;
+
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                         decoration: BoxDecoration(
-                          color: isAdmin
-                              ? Colors.blueAccent
-                              : isSystem
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.black45,width: 2, )
                         ),
-                        child: Text(
-                          messageData["message"] ?? "",
-                          style: TextStyle(
-                            color: isAdmin || isSystem ? Colors.white : Colors.black87,
-                            fontStyle: isSystem ? FontStyle.italic : FontStyle.normal,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final messageData = messages[index].data() as Map<String, dynamic>;
+                              final isAdmin = messageData["senderId"] == currentAdminUid;
+                              final isSystem = messageData["senderId"] == "system";
+
+                              return Align(
+                                alignment: isSystem
+                                    ? Alignment.center
+                                    : isAdmin
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: isAdmin
+                                        ? Colors.blueAccent
+                                        : isSystem
+                                        ? Colors.grey.shade400
+                                        : Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    messageData["message"] ?? "",
+                                    style: TextStyle(
+                                      color: isAdmin || isSystem ? Colors.white : Colors.black87,
+                                      fontStyle: isSystem ? FontStyle.italic : FontStyle.normal,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
                     );
                   },
-                );
-              },
-            ),
-          ),
-          StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection("safe_talk/chat/queue")
-                .doc(widget.userId)
-                .snapshots(),
-            builder: (context, snapshot) {
-              bool isFinished = false;
-              if (snapshot.hasData && snapshot.data!.exists) {
-                final status = snapshot.data!["status"];
-                isFinished = status == "finished" || status == "cancelled";
-              }
-
-              return Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: isFinished
-                    ? Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    "✅ This chat session has ended. You cannot send messages.",
-                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                )
-                    : Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: "Type a message...",
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.send, color: Colors.blueAccent),
-                      onPressed: _sendMessage,
-                    ),
-                  ],
                 ),
-              );
-            },
-          ),
+              ),
+              StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("safe_talk/chat/queue")
+                    .doc(widget.userId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  bool isFinished = false;
+                  if (snapshot.hasData && snapshot.data!.exists) {
+                    final status = snapshot.data!["status"];
+                    isFinished = status == "finished" || status == "cancelled";
+                  }
 
-        ],
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: 15,
+                    ),
+                    child: isFinished
+                        ? Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 2, color: Colors.black87),
+                        color: Colors.red.shade200,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        "✅ This chat session has ended. You cannot send messages.",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                        : Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _messageController,
+                            decoration: InputDecoration(
+                              hintText: "Type a message...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.send, color: Colors.blueAccent),
+                          onPressed: _sendMessage,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
+
+
     );
   }
 }

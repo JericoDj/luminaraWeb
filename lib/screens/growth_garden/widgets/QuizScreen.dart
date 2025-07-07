@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import '../../../models/quiz_model.dart';
 import '../../../utils/constants/colors.dart';
 
@@ -159,10 +160,15 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Widget _buildQuizScreen(Quiz quiz) {
     final currentQuestion = quiz.questions[currentQuestionIndex];
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isLargeScreen = screenWidth > 1100;
+
     return Scaffold(
       appBar: _buildAppBar('${quiz.category} Quiz'),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: isLargeScreen
+            ? const EdgeInsets.symmetric(horizontal: 400.0, vertical: 16.0)
+            : const EdgeInsets.all(16.0),
         child: Column(
           children: [
             LinearProgressIndicator(
@@ -183,6 +189,7 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
     );
   }
+
 
   List<Widget> _buildAnswerButtons(QuizQuestion question, bool isPersonalityBased) {
     return question.answers.map((answer) => GestureDetector(
@@ -267,7 +274,9 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () => Get.back(),
+                onTap: () => {
+                  context.go('/insight-quest'),
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
                   decoration: BoxDecoration(

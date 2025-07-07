@@ -228,177 +228,186 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          toolbarHeight: 65,
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.2),
-          title: const Text("Review and Submit",
-              style: TextStyle(color: MyColors.color1)),
-          iconTheme: IconThemeData(color: MyColors.color1),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const Text("Review Your Booking Details",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFfcbc1d),
-                      Color(0xFFfd9c33),
-                      Color(0xFF59b34d),
-                      Color(0xFF359d4e)
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Container(
-                  width: 350,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Column(
-                    children: [
-                      Text("Consultation Type: ${widget.consultationType}",
-                          style: TextStyle(
-                              color: MyColors.black,
-                              fontWeight: FontWeight.w600)),
-                      Text("Date: ${widget.selectedDate}",
-                          style: TextStyle(
-                              color: MyColors.black,
-                              fontWeight: FontWeight.w600)),
-                      Text("Time: ${widget.selectedTime}",
-                          style: TextStyle(
-                              color: MyColors.black,
-                              fontWeight: FontWeight.w600)),
-                      Text("Service: ${widget.service}",
-                          style: TextStyle(
-                              color: MyColors.black,
-                              fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text("Informed Consent",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: _openContractPopup,
-                child: Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFfcbc1d),
-                        Color(0xFFfd9c33),
-                        Color(0xFF59b34d),
-                        Color(0xFF359d4e)
-                      ],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: const Text("Tap to view the full Informed Consent.",
-                        style: TextStyle(fontSize: 14)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            double horizontalPadding = constraints.maxWidth > 800 ? 400 : 16;
+
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Checkbox(
-                    activeColor: MyColors.color2,
-                    value: _isContractChecked,
-                    onChanged: _toggleAgreement,
-                  ),
-                  const Text("I agree to the Informed Consent.",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: _openESignPopup,
-                child: Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFfcbc1d),
-                        Color(0xFFfd9c33),
-                        Color(0xFF59b34d),
-                        Color(0xFF359d4e)
-                      ],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
+                  const Text("Review Your Booking Details",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFfcbc1d),
+                          Color(0xFFfd9c33),
+                          Color(0xFF59b34d),
+                          Color(0xFF359d4e)
+                        ],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: _signatureImage != null
-                        ? Image.memory(_signatureImage!,
-                            width: 200, height: 100, fit: BoxFit.contain)
-                        : Container(
-                            width: 200,
-                            height: 100,
-                            child: Center(
-                                child: Text("Tap to Sign",
-                                    style: TextStyle(color: Colors.grey)))),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Consultation Type: ${widget.consultationType}",
+                              style: TextStyle(
+                                  color: MyColors.black,
+                                  fontWeight: FontWeight.w600)),
+                          Text("Date: ${widget.selectedDate}",
+                              style: TextStyle(
+                                  color: MyColors.black,
+                                  fontWeight: FontWeight.w600)),
+                          Text("Time: ${widget.selectedTime}",
+                              style: TextStyle(
+                                  color: MyColors.black,
+                                  fontWeight: FontWeight.w600)),
+                          Text("Service: ${widget.service}",
+                              style: TextStyle(
+                                  color: MyColors.black,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: _isSubmitting ? null : _showConfirmationDialog,
-                // Prevent multiple taps
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: _isSubmitting ? Colors.grey : MyColors.color2,
-                    // Change color when submitting
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(
-                          color: Colors.white) // ✅ Show loader inside button
-                      : const Text(
-                          "Submit Request",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                  const SizedBox(height: 20),
+                  const Text("Informed Consent",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: _openContractPopup,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFfcbc1d),
+                            Color(0xFFfd9c33),
+                            Color(0xFF59b34d),
+                            Color(0xFF359d4e)
+                          ],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
                             color: Colors.white,
+                            borderRadius: BorderRadius.circular(8)),
+                        child: const Text("Tap to view the full Informed Consent.",
+                            style: TextStyle(fontSize: 14)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                        activeColor: MyColors.color2,
+                        value: _isContractChecked,
+                        onChanged: _toggleAgreement,
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            _toggleAgreement(!_isContractChecked);
+                          },
+                          child: const Text(
+                            "I agree to the Informed Consent.",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: _openESignPopup,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFfcbc1d),
+                            Color(0xFFfd9c33),
+                            Color(0xFF59b34d),
+                            Color(0xFF359d4e)
+                          ],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8)),
+                        child: _signatureImage != null
+                            ? Image.memory(_signatureImage!,
+                            width: 200, height: 100, fit: BoxFit.contain)
+                            : const SizedBox(
+                          width: 200,
+                          height: 100,
+                          child: Center(
+                              child: Text("Tap to Sign",
+                                  style: TextStyle(color: Colors.grey))),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: _isSubmitting ? null : _showConfirmationDialog,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: _isSubmitting ? Colors.grey : MyColors.color2,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: _isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                        "Submit Request",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

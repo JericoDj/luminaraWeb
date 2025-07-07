@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../controllers/call_controller.dart';
 
@@ -119,7 +120,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
-              Get.off(() => const CallEndedScreen());
+              context.go('/session-ended');
               print("🚀 Navigation Successful: CallEndedScreen");
             } else {
               print("❌ Navigation Failed: Widget Unmounted");
@@ -167,7 +168,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
           Future.delayed(const Duration(milliseconds: 100), () {
             if (mounted) {
-              Get.off(() => ChatScreen(userId: widget.userId));
+              context.go('/chat/${widget.userId}');
               print("🚀 Navigation Successful: ChatScreen");
             }
           });
@@ -179,17 +180,8 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
-              Get.off(() => Scaffold(
-                appBar: AppBar(title: const Text("Session Ended")),
-                body: const Center(
-                  child: Text(
-                    "Your chat session has ended. Please rejoin if needed.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ));
-              print("🚀 Navigation Successful: Exiting ChatScreen");
+              context.go('/call-ended');
+              print("🚀 Navigation Successful: CallEndedScreen");
             } else {
               print("❌ Navigation Failed: Widget Unmounted");
             }

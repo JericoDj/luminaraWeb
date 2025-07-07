@@ -99,91 +99,112 @@ class _MindHubEbooksScreenState extends State<MindHubEbooksScreen> {
           }
 
           final ebooks = snapshot.data!;
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.7,
-            ),
-            itemCount: ebooks.length,
-            itemBuilder: (context, index) {
-              final ebook = ebooks[index];
-              return GestureDetector(
-                onTap: () => openEbook(ebook.pdfUrl),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(8),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              int crossAxisCount = 2;
+              double screenWidth = constraints.maxWidth;
+
+              if (screenWidth >= 1200) {
+                crossAxisCount = 4;
+              } else if (screenWidth >= 900) {
+                crossAxisCount = 3;
+              } else if (screenWidth >= 600) {
+                crossAxisCount = 2;
+              }
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.6,
+                    ),
+                    itemCount: ebooks.length,
+                    itemBuilder: (context, index) {
+                      final ebook = ebooks[index];
+                      return GestureDetector(
+                        onTap: () => openEbook(ebook.pdfUrl),
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Image.network(
-                            ebook.coverUrl,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (_, child, progress) {
-                              if (progress == null) return child;
-                              return Container(
-                                color: Colors.grey[200],
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    value: progress.expectedTotalBytes != null
-                                        ? progress.cumulativeBytesLoaded /
-                                        progress.expectedTotalBytes!
-                                        : null,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(8),
+                                  ),
+                                  child: Image.network(
+                                    ebook.coverUrl,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (_, child, progress) {
+                                      if (progress == null) return child;
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            value: progress.expectedTotalBytes != null
+                                                ? progress.cumulativeBytesLoaded /
+                                                progress.expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (_, __, ___) => Container(
+                                      color: Colors.grey[200],
+                                      alignment: Alignment.center,
+                                      child: const Icon(Icons.error, color: Colors.red),
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
-                            errorBuilder: (_, __, ___) => Container(
-                              color: Colors.grey[200],
-                              alignment: Alignment.center,
-                              child: const Icon(Icons.error, color: Colors.red),
-                            ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      ebook.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      ebook.description,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ebook.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              ebook.description,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               );
             },
           );
+
         },
       ),
     );

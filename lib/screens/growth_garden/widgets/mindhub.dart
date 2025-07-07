@@ -12,23 +12,20 @@ class MindHubButton extends StatelessWidget {
         ? MediaQuery.of(context).size.width / 2 - 20
         : 500 / 2 - 20;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FeatureCard(
-            title: 'Safe Space Hub',
-            icon: Icons.lightbulb,
-            description:
-            'Explore mental health resources: articles, videos, and eBooks for self-help support.',
-            onTap: () {
-              context.go('/mindhub/Articles');
-            },
-            width: width,
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FeatureCard(
+          title: 'Safe Space Hub',
+          icon: Icons.lightbulb,
+          description:
+          'Explore mental health resources: articles, videos, and eBooks for self-help support.',
+          onTap: () {
+            context.go('/mindhub/Articles');
+          },
+          width: width,
+        ),
+      ],
     );
   }
 }

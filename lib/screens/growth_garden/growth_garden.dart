@@ -22,7 +22,7 @@ class GrowthGardenScreen extends StatelessWidget {
                 SizedBox(height: 20,),
                 // Hero Section
                 Container(
-                  width: MediaQuery.of(context).size.width *0.40,
+                  width: isLargeScreen ? MediaQuery.of(context).size.width *0.40 : MediaQuery.of(context).size.width  * .9,
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -45,8 +45,10 @@ class GrowthGardenScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
+                        textAlign: TextAlign.center,
                         "Nurture your mental wellness with small daily actions.",
                         style: TextStyle(
+
                           fontSize: isLargeScreen ? 18 : 16,
                           color: Colors.grey.shade700,
                         ),
@@ -70,16 +72,47 @@ class GrowthGardenScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height:30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    QuickWellnessTools(),
-                    const SizedBox(width: 15),
-                    MindHubButton(),
-                    const SizedBox(width: 15),
-                    InsightQuestButton(),
-                  ],
-                ),
+                if (isLargeScreen) ...[
+                  // ➤ 3 cards in a row (large screen)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      QuickWellnessTools(),
+                      const SizedBox(width: 15),
+                      MindHubButton(),
+                      const SizedBox(width: 15),
+                       InsightQuestButton(),
+                    ],
+                  )
+                ] else ...[
+                  // ➤ Column layout (small to medium screen)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: QuickWellnessTools(),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2 - 25,
+                            child: MindHubButton(),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2 - 25,
+                            child: InsightQuestButton(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+
+
                 const SizedBox(height: 30),
       
                 // Gratitude Journal

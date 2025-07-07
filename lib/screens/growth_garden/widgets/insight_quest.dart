@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -53,33 +54,27 @@ class InsightQuestScreen extends StatelessWidget {
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFF8F8F8),
-                      Color(0xFFF1F1F1),
-                    ],
+                    colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                 ),
               ),
-
-              /// Gradient Bottom Border
               Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 2, // Border thickness
+                  height: 2,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.orange, // Start - Orange
-                        Colors.orangeAccent, // Stop 2 - Orange Accent
-                        Colors.green, // Stop 3 - Green
-                        Colors.greenAccent, // Stop 4 - Green Accent
+                        Colors.orange,
+                        Colors.orangeAccent,
+                        Colors.green,
+                        Colors.greenAccent,
                       ],
                       stops: const [0.0, 0.5, 0.5, 1.0],
-                      // Define stops at 50% transition
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
@@ -109,20 +104,18 @@ class InsightQuestScreen extends StatelessWidget {
     );
   }
 
-  /// 🎭 Hero Section with Improved UI
   Widget _buildHeroSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
-        children: [
-
-          const Text(
+        children: const [
+          Text(
             "Welcome to Insight Quest! 🧠",
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             "Take personalized, science-backed quizzes to improve self-awareness and mental well-being.",
             style: TextStyle(fontSize: 14, color: Colors.black54),
             textAlign: TextAlign.center,
@@ -132,12 +125,14 @@ class InsightQuestScreen extends StatelessWidget {
     );
   }
 
-  /// 🧩 Improved GridView for Quiz Categories
   Widget _buildCategoryGrid(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isLargeScreen = screenWidth > 1500;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: isLargeScreen ? 400 : 16),
       child: GridView.count(
-        crossAxisCount: 2,
+        crossAxisCount: isLargeScreen ? 4 : 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 16,
@@ -156,15 +151,10 @@ class InsightQuestScreen extends StatelessWidget {
     );
   }
 
-  /// 🎯 Category Cards with Clear Navigation
   Widget _quizCategory(BuildContext context, String title, IconData icon, Color color, String category, String description) {
     return GestureDetector(
       onTap: () {
-        if (category == "Mindfulness" || category == "Resilience") {
-          context.go('/quiz/${Uri.encodeComponent(category)}');
-        } else {
-          context.go('/quiz/${Uri.encodeComponent(category)}');
-        }
+        context.go('/quiz/${Uri.encodeComponent(category)}');
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -205,92 +195,98 @@ class InsightQuestScreen extends StatelessWidget {
     );
   }
 
-  /// 🌟 Featured Quizzes with Engaging Colors & Descriptions
   Widget _buildFeaturedQuizzes(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isLargeScreen = screenWidth > 1500;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: isLargeScreen ? 400: 16),
+          child: const Text(
             "🔥 Featured Quizzes",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 190,
-          child: PageView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _featuredQuizCard(context, "Deep Focus", "Train your brain to maintain cation.", Colors.indigo, Icons.visibility),
-              _featuredQuizCard(context, "Mental Clarity", "Sharpen your ability to think critically.", Colors.purple, Icons.lightbulb),
-              _featuredQuizCard(context, "Positivity Boost", "Develop a more optimistic mindset.", Colors.pinkAccent, Icons.mood),
-            ],
+        const SizedBox(height: 20),
+        CarouselSlider(
+          options: CarouselOptions(
+            height: 200,
+
+            viewportFraction: 0.75,
+            enableInfiniteScroll: true,
+            enlargeCenterPage: true,
+            autoPlay: true,
           ),
+          items: [
+            _featuredQuizCard(context, "Deep Focus", "Train your brain to maintain focus.", Colors.indigo, Icons.visibility),
+            _featuredQuizCard(context, "Mental Clarity", "Sharpen your ability to think critically.", Colors.purple, Icons.lightbulb),
+            _featuredQuizCard(context, "Positivity Boost", "Develop a more optimistic mindset.", Colors.pinkAccent, Icons.mood),
+          ],
         ),
+
+        const SizedBox(height: 50),
       ],
     );
   }
 
-  /// 🎭 Featured Quiz Cards with Modern Look
-  Widget _featuredQuizCard(BuildContext context, String title, String description, Color color, IconData icon) {
-    double width;
-    if (MediaQueryData.fromView(WidgetsBinding.instance.window).size.width < 510) {
-      width = MediaQueryData.fromView(WidgetsBinding.instance.window).size.width / 2 - 30;
-    } else {
-      width = 500 / 2 - 30;
-    }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
-      child: Container(
-        width: width - 15,
-        height: width - 15,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            begin: Alignment.bottomLeft,
-            end: Alignment.topRight,
-            colors: [
-              Colors.green,
-              MyColors.color1,
-              Colors.orange,
-              MyColors.color2,
-            ],
-            stops: [0.0, 0.5, 0.51, 1.0],
-          ),
+  Widget _featuredQuizCard(BuildContext context, String title, String description, Color color, IconData icon) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isLargeScreen = screenWidth > 1100;
+    final double width = isLargeScreen
+        ? screenWidth * 0.30
+        : screenWidth < 510
+        ? screenWidth / .80
+        : screenWidth / .80;
+
+    return Container(
+      width: width,
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          colors: [
+            Colors.green,
+            MyColors.color1,
+            Colors.orange,
+            MyColors.color2,
+          ],
+          stops: [0.0, 0.5, 0.51, 1.0],
         ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            onTap: () {
-              String selectedCategory = quizData.containsKey(title) ? title : "Mindfulness";
-              context.go('/quiz/${Uri.encodeComponent(selectedCategory)}');
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 36, color: Colors.grey[800]),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors.color1),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: MyColors.color1.withOpacity(0.8)),
-                ),
-              ],
-            ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          onTap: () {
+            String selectedCategory = quizData.containsKey(title) ? title : "Mindfulness";
+            context.go('/quiz/${Uri.encodeComponent(selectedCategory)}');
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 36, color: Colors.grey[800]),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: MyColors.color1),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: MyColors.color1.withOpacity(0.8)),
+              ),
+            ],
           ),
         ),
       ),

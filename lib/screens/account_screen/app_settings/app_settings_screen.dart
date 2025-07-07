@@ -279,9 +279,13 @@ class AppSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isLargeScreen = screenWidth >= 1100;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           toolbarHeight: 65,
           title: const Text('App Settings'),
           flexibleSpace: Stack(
@@ -323,37 +327,69 @@ class AppSettingsPage extends StatelessWidget {
             ],
           ),
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Theme Settings
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                title: const Text(
-                  'Theme',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isLargeScreen ? 1100 : double.infinity,
+            ),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                const SizedBox(height: 16),
+
+                // Change Password Settings
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: ListTile(
+                    title: const Text(
+                      'Change Password',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: const Text('Update your password'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showChangePasswordDialog(context); // Open Change Password Dialog
+                    },
                   ),
                 ),
-                subtitle: Row(
-                  children: [
-                    const Text('Light ', style: TextStyle(color: MyColors.color2, fontWeight: FontWeight.w700),),
-                    const Text('/', style: TextStyle(color: Colors.black87 ,fontWeight: FontWeight.bold),),
-                    const Text(' Dark', style: TextStyle(color: MyColors.color1, fontWeight: FontWeight.w700),),
-
-                  ],
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  showThemeDialog(context); // Open Theme Dialog
-                },
-              ),
+              ],
             ),
+          ),
+        ),
+            // Theme Settings
+            // Card(
+            //   elevation: 4,
+            //   shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.circular(15),
+            //   ),
+            //   child: ListTile(
+            //     title: const Text(
+            //       'Theme',
+            //       style: TextStyle(
+            //         fontSize: 16,
+            //         fontWeight: FontWeight.bold,
+            //       ),
+            //     ),
+            //     subtitle: Row(
+            //       children: [
+            //         const Text('Light ', style: TextStyle(color: MyColors.color2, fontWeight: FontWeight.w700),),
+            //         const Text('/', style: TextStyle(color: Colors.black87 ,fontWeight: FontWeight.bold),),
+            //         const Text(' Dark', style: TextStyle(color: MyColors.color1, fontWeight: FontWeight.w700),),
+            //
+            //       ],
+            //     ),
+            //     trailing: const Icon(Icons.chevron_right),
+            //     onTap: () {
+            //       showThemeDialog(context); // Open Theme Dialog
+            //     },
+            //   ),
+            // ),
 
             // // Text Size Settings
             // Card(
@@ -376,31 +412,7 @@ class AppSettingsPage extends StatelessWidget {
             //     },
             //   ),
             // ),
-            const SizedBox(height: 16),
 
-            // Change Password Settings
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                title: const Text(
-                  'Change Password',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: const Text('Update your password'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  showChangePasswordDialog(context); // Open Change Password Dialog
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

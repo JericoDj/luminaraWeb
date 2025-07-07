@@ -10,7 +10,7 @@ class SafeTalkButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/safe-talk'),
       child: Container(
-        width: 200,
+        width: 300,
         padding: EdgeInsets.all(2), // Creates a thick border effect
         decoration: BoxDecoration(
           color: MyColors.color2, // Outer border color
@@ -24,8 +24,10 @@ class SafeTalkButton extends StatelessWidget {
           padding:EdgeInsets.all(2),
 
           child: Container(
+
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
             decoration: BoxDecoration(
+
               borderRadius: BorderRadius.circular(2),
               color: MyColors.color2, // Inner background color
 

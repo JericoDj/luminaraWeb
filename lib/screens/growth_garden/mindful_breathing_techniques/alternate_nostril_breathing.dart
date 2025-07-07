@@ -179,100 +179,105 @@ class _AlternateNostrilBreathingScreenState
           ),
           title: const Text("Alternate Nostril Breathing"),
         ),
-        body: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Container(
-                height: 70,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(
-                    _isPlaying
-                        ? '${_breathingSteps[_stepIndex]} $_countdown s'
-                        : _stepIndex == -1
-                        ? 'Welcome to Alternate Nostril\nBreathing Exercise!'
-                        : 'Thank you for meditating!',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+        body: SingleChildScrollView(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+                Container(
+                  height: 70,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      _isPlaying
+                          ? '${_breathingSteps[_stepIndex]} $_countdown s'
+                          : _stepIndex == -1
+                          ? 'Welcome to Alternate Nostril\nBreathing Exercise!'
+                          : 'Thank you for meditating!',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 60),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  AnimatedBuilder(
-                    animation: _rippleAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _rippleAnimation.value,
-                        child: Container(
-                          width: 250,
-                          height: 250,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: MyColors.color2.withOpacity(0.5),
-                            boxShadow: [
-                              BoxShadow(
-                                color: MyColors.color2.withOpacity(0.3),
-                                blurRadius: 20,
-                                spreadRadius: 5,
-                              ),
-                            ],
+                const SizedBox(height: 60),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _rippleAnimation,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _rippleAnimation.value,
+                          child: Container(
+                            width: 250,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: MyColors.color2.withOpacity(0.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: MyColors.color2.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                  AnimatedBuilder(
-                    animation: _sizeAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: 1.0, // We don’t need a ripple effect here, just the size animation
-                        child: Container(
-                          width: _sizeAnimation.value,
-                          height: _sizeAnimation.value,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: MyColors.color2.withOpacity(0.8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: MyColors.color2.withOpacity(0.5),
-                                blurRadius: 20,
-                                spreadRadius: 5,
-                              ),
-                            ],
+                        );
+                      },
+                    ),
+                    AnimatedBuilder(
+                      animation: _sizeAnimation,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: 1.0, // We don’t need a ripple effect here, just the size animation
+                          child: Container(
+                            width: _sizeAnimation.value,
+                            height: _sizeAnimation.value,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: MyColors.color2.withOpacity(0.8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: MyColors.color2.withOpacity(0.5),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.air,
+                              size: 80,
+                              color: Colors.white,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.air,
-                            size: 80,
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 60),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  'Alternate Nostril Breathing is a powerful technique to balance the mind and body, reduce stress, and improve focus.',
-                  style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-                  textAlign: TextAlign.center,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 60),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'Alternate Nostril Breathing is a powerful technique to balance the mind and body, reduce stress, and improve focus.',
+                    style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width > 800 ? MediaQuery.of(context).size.width * .3: 16.0,
+            vertical: 20.0,
+          ),
           child: GestureDetector(
             onTap: isStarting
                 ? null

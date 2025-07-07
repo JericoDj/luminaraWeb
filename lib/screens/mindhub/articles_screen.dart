@@ -55,25 +55,31 @@ class SafeSpaceHubArticles extends StatelessWidget {
             return const Center(child: Text('No articles found.'));
           }
 
-          return SingleChildScrollView(
+      return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Mental Wellness Articles",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Mental Wellness Articles",
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: articles.length,
+                      itemBuilder: (context, index) => _buildArticleCard(context, articles[index]),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: articles.length,
-                  itemBuilder: (context, index) => _buildArticleCard(context, articles[index]),
-                ),
-              ],
+              ),
             ),
           );
+
         },
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luminarawebsite/Footer.dart';
 import '../utils/constants/colors.dart';
 
 class MainLayout extends StatelessWidget {
@@ -9,20 +10,54 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLargeScreen = MediaQuery.of(context).size.width >= 800;
+    final isLargeScreen = MediaQuery
+        .of(context)
+        .size
+        .width >= 1100;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 65,
         title: GestureDetector(
-          onTap: () => {
+          onTap: () =>
+          {
             context.go("/home")
           },
-          child: Image.asset(
-            'assets/images/appbar_title.png',
-            height: MediaQuery.of(context).size.height * 0.08,
-            fit: BoxFit.contain,
+          child: Row(
+            mainAxisAlignment: isLargeScreen
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.end
+            ,
+            children: [
+
+              if (isLargeScreen) SizedBox(width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.05),
+              Image.asset(
+
+                "assets/images/Logo_Square.png",
+                height: (isLargeScreen) ? MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.06 : MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.05,
+              ),
+              Image.asset(
+                'assets/images/appbar_title.png',
+                height: isLargeScreen ? MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.07 : MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.00,
+                fit: BoxFit.contain,
+              ),
+            ],
           ),
         ),
         elevation: 2,
@@ -31,14 +66,20 @@ class MainLayout extends StatelessWidget {
         leading: isLargeScreen
             ? null
             : Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+          builder: (context) =>
+              IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         ),
       ),
       drawer: isLargeScreen ? null : _buildDrawer(context),
-      body: child,
+      body: Column(
+        children: [
+          Expanded(child: child), // dynamic page content
+          const AppFooter(), // footer at the bottom
+        ],
+      ),
     );
   }
 
@@ -82,11 +123,16 @@ class MainLayout extends StatelessWidget {
     ];
   }
 
-  Widget _navButton(BuildContext context, IconData icon, String label, String route) {
-    final bool selected = GoRouterState.of(context).uri.toString() == route;
+  Widget _navButton(BuildContext context, IconData icon, String label,
+      String route) {
+    final bool selected = GoRouterState
+        .of(context)
+        .uri
+        .toString() == route;
     return TextButton.icon(
       onPressed: () => context.go(route),
-      icon: Icon(icon, size: 20, color: selected ? MyColors.color2 : Colors.black54),
+      icon: Icon(
+          icon, size: 20, color: selected ? MyColors.color2 : Colors.black54),
       label: Text(label,
           style: TextStyle(
               color: selected ? MyColors.color2 : Colors.black87,
@@ -96,34 +142,105 @@ class MainLayout extends StatelessWidget {
 
   Drawer _buildDrawer(BuildContext context) {
     return Drawer(
-      child: ListView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text('MAIN NAVIGATION',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFF8F8F8),
+                  Color(0xFFF1F1F1),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Row(
+              children: [
+                Image.asset("assets/images/Logo_Square.png", height: 40),
+                const SizedBox(width: 10),
+                Text(
+                  "Luminara",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: MyColors.color1,
+                  ),
+                ),
+              ],
+            ),
           ),
-          _drawerItem(context, Icons.home, 'Home', '/home'),
-          _drawerItem(context, Icons.eco, 'Growth Garden', '/growth-garden'),
-          _drawerItem(context, Icons.calendar_today, 'Book Now', '/book-now'),
-          _drawerItem(context, Icons.group, 'Community', '/community'),
-          const Divider(),
-          _drawerItem(context, Icons.account_circle, 'Account', '/account'),
+          // Gradient bottom border
+          Container(
+            height: 2,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.orange,
+                  Colors.orangeAccent,
+                  Colors.green,
+                  Colors.greenAccent
+                ],
+                stops: [0.0, 0.5, 0.5, 1.0],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'MAIN NAVIGATION',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: ListView(
+              children: [
+                _drawerItem(context, Icons.home, 'Home', '/home'),
+                _drawerItem(
+                    context, Icons.eco, 'Growth Garden', '/growth-garden'),
+                _drawerItem(
+                    context, Icons.calendar_today, 'Book Now', '/book-now'),
+                _drawerItem(context, Icons.group, 'Community', '/community'),
+                const Divider(),
+                _drawerItem(
+                    context, Icons.account_circle, 'Account', '/account'),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, String route) {
-    final bool selected = GoRouterState.of(context).uri.toString() == route;
+  Widget _drawerItem(BuildContext context, IconData icon, String title,
+      String route) {
+    final bool selected = GoRouterState
+        .of(context)
+        .uri
+        .toString() == route;
     return ListTile(
-      leading: Icon(icon, color: selected ? Colors.blue : null),
-      title: Text(title,
-          style: TextStyle(
-              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-              color: selected ? Colors.blue : Colors.black)),
-      tileColor: selected ? Colors.blue[50] : null,
+      leading: Icon(icon, color: selected ? MyColors.color2 : MyColors.color2.withValues(alpha:0.8), fill: 0.23,),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          color: selected ? MyColors.color1 : Colors.black87,
+        ),
+      ),
+      tileColor: selected ? MyColors.color2.withOpacity(0.1) : null,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: () {
         context.go(route);
         Navigator.pop(context);

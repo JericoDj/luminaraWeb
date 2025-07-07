@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:go_router/go_router.dart';
 import '../../utils/constants/colors.dart';
 import 'TIcket_Popup_widget.dart';
 
@@ -121,8 +122,7 @@ class ContactSupportSection extends StatelessWidget {
                 padding: EdgeInsets.all(20),
                 child: GestureDetector(
                   onTap: () {
-                    // Handle ticket submission
-                    Get.to(() => SupportTicketsPage());
+                    context.push('/support-tickets');
                   },
                   child: Center(
                     child: SizedBox(

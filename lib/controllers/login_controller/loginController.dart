@@ -94,7 +94,7 @@ class LoginController extends ChangeNotifier {
       await _userStorage.saveFCMToken();
       await checkAndStoreSafeCommunityAccess();
 
-      context.go('/dashboard');
+      context.go('/home');
     } on FirebaseAuthException catch (e) {
       String message = switch (e.code) {
         'user-not-found' => "No user found with this email.",

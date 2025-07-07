@@ -180,112 +180,126 @@ class _FourSevenEightBreathingScreenState
             title: const Text("4-7-8 Breathing Exercise")),
 
 
-        body: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Container(
-                height: 70,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(
-                    _isPlaying
-                        ? '${_breathingSteps[_stepIndex]} $_countdown s'
-                        : _stepIndex == -1
-                        ? 'Welcome to 4-7-8\nBreathing Exercise!'
-                        : 'Thank you for meditating!',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 26, fontWeight: FontWeight.bold,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isLargeScreen = constraints.maxWidth > 800;
+
+            return SingleChildScrollView(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    Container(
+                      width: isLargeScreen ? constraints.maxWidth * 0.3: constraints.maxWidth * 0.9,
+                      height: 70,
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          _isPlaying
+                              ? '${_breathingSteps[_stepIndex]} $_countdown s'
+                              : _stepIndex == -1
+                              ? 'Welcome to 4-7-8\nBreathing Exercise!'
+                              : 'Thank you for meditating!',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 60),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedBuilder(
+                          animation: _rippleAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _rippleAnimation.value,
+                              child: Container(
+                                width: 220,
+                                height: 220,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: MyColors.color2.withOpacity(0.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: MyColors.color2.withOpacity(0.3),
+                                      blurRadius: 20,
+                                      spreadRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        AnimatedBuilder(
+                          animation: _sizeAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _rippleAnimation.value,
+                              child: Container(
+                                width: _sizeAnimation.value,
+                                height: _sizeAnimation.value,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: MyColors.color2.withOpacity(0.8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: MyColors.color2.withOpacity(0.5),
+                                      blurRadius: 20,
+                                      spreadRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.air,
+                                  size: 80,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 60),
+                    Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Text(
+                        'The 4-7-8 breathing technique can help reduce stress, promote relaxation, improve focus, and help with sleep. Breathe deeply, hold, and exhale to feel more balanced and centered!',
+                        style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 60),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  AnimatedBuilder(
-                    animation: _rippleAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _rippleAnimation.value,
-                        child: Container(
-                          width: 220,
-                          height: 220,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: MyColors.color2.withOpacity(0.5),
-                            boxShadow: [
-                              BoxShadow(
-                                color: MyColors.color2.withOpacity(0.3),
-                                blurRadius: 20,
-                                spreadRadius: 5,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  AnimatedBuilder(
-                    animation: _sizeAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _rippleAnimation.value,
-                        child: Container(
-                          width: _sizeAnimation.value,
-                          height: _sizeAnimation.value,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: MyColors.color2.withOpacity(0.8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: MyColors.color2.withOpacity(0.5),
-                                blurRadius: 20,
-                                spreadRadius: 5,
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.air,
-                            size: 80,
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 60),
-              Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Text(
-                  'The 4-7-8 breathing technique can help reduce stress, promote relaxation, improve focus, and help with sleep. Breathe deeply, hold, and exhale to feel more balanced and centered!',
-                  style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
+
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width > 800 ? MediaQuery.of(context).size.width * .3: 16.0,
+            vertical: 20.0,
+          ),
           child: GestureDetector(
             onTap: isStarting
                 ? null
-                : (_isPlaying ? _pauseBreathing : _startCountdown), // Button is clickable after countdown starts
+                : (_isPlaying ? _pauseBreathing : _startCountdown),
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: isStarting ? Colors.grey : MyColors.color1, // Prevent clicking during countdown
+                color: isStarting ? Colors.grey : MyColors.color1,
                 borderRadius: BorderRadius.circular(25),
               ),
               alignment: Alignment.center,
               child: Text(
-                _buttonText, // Show the current button text
+                _buttonText,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -295,6 +309,8 @@ class _FourSevenEightBreathingScreenState
             ),
           ),
         ),
+
+
       ),
     );
   }

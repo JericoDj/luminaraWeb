@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../screens/account_screen/accounts_privacy/accounts_privacy_page.dart';
-import '../../screens/account_screen/app_settings/app_settings_screen.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../utils/constants/colors.dart';
 
@@ -14,12 +13,7 @@ class AccountSettingsButtons extends StatelessWidget {
         _buildButton(
           text: 'App Settings',
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AppSettingsPage(),
-              ),
-            );
+            context.push('/app-settings');
           },
         ),
 
@@ -28,12 +22,7 @@ class AccountSettingsButtons extends StatelessWidget {
         _buildButton(
           text: 'Account Privacy',
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AccountPrivacyPage(),
-              ),
-            );
+            context.push('/account-privacy');
           },
         ),
       ],
@@ -46,22 +35,21 @@ class AccountSettingsButtons extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white, // Background color of the button
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MyColors.color2, width: 2), // Border color
+          border: Border.all(color: MyColors.color2, width: 2),
         ),
         child: Center(
           child: Text(
             text,
             style: TextStyle(
-              color: MyColors.color2, // Text color
+              color: MyColors.color2,
               fontSize: 16,
-              fontWeight: FontWeight.w600
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
     );
-
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import '../../controllers/login_controller/loginController.dart';
 import '../../utils/constants/colors.dart';
 
@@ -13,7 +14,9 @@ class LogoutButton extends StatelessWidget {
 
     return Center(
       child: OutlinedButton(
-        onPressed: () => {},
+        onPressed: () => {
+          context.push('/login'),
+        },
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: MyColors.color2, width: 2.5),
           padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 14),

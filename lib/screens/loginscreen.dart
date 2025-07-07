@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // final LoginController controller = LoginController();
+  final LoginController controller = LoginController();
 
   bool isLoading = false;
   bool isPasswordVisible = false;
@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => isLoading = true);
 
     try {
-      // await controller.login(context);
+      await controller.login(context);
       // Navigate on success if needed, e.g., context.go('/dashboard');
     } finally {
       if (mounted) {
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   /// ✅ Email
                   TextField(
-
+                    controller: controller.emailController, // 👈 bind here
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: "Email",
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   /// ✅ Password
                   TextField(
-
+                    controller: controller.passwordController, // 👈 bind here
                     obscureText: !isPasswordVisible,
                     decoration: InputDecoration(
                       labelText: "Password",
