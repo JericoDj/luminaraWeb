@@ -57,10 +57,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Center(
             child: Form(
               key: _formKey,
               child: Container(
@@ -69,25 +68,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      "assets/images/logo/Logo_Square.png",
+                      "assets/images/Logo_Square.png",
                       width: 150,
                       height: 150,
                     ),
                     const SizedBox(height: 10),
-
+        
                     const Text("Create Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     const Text("Sign up to get started", style: TextStyle(color: Colors.grey)),
-
+        
                     const SizedBox(height: 20),
-
+        
                     TextFormField(
                       controller: _companyIdController,
                       decoration: _inputDecoration("Company ID", Icons.business),
                       validator: (val) => val == null || val.isEmpty ? "Please enter your Company ID" : null,
                     ),
                     const SizedBox(height: 15),
-
+        
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -99,21 +98,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     const SizedBox(height: 15),
-
+        
                     TextFormField(
                       controller: _usernameController,
                       decoration: _inputDecoration("Username", Icons.person_outline),
                       validator: (val) => val == null || val.isEmpty ? "Please enter a username" : null,
                     ),
                     const SizedBox(height: 15),
-
+        
                     TextFormField(
                       controller: _fullNameController,
                       decoration: _inputDecoration("Full Name", Icons.person_outline),
                       validator: (val) => val == null || val.isEmpty ? "Please enter your full name" : null,
                     ),
                     const SizedBox(height: 15),
-
+        
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
@@ -125,7 +124,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     const SizedBox(height: 15),
-
+        
                     TextFormField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
@@ -144,7 +143,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     const SizedBox(height: 15),
-
+        
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: !_isConfirmPasswordVisible,
@@ -163,7 +162,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     const SizedBox(height: 25),
-
+        
                     SizedBox(
                       height: 55,
                       width: double.infinity,
@@ -178,9 +177,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             : const Text("Sign Up", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     ),
-
+        
                     const SizedBox(height: 20),
-
+        
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -195,7 +194,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                     const SizedBox(height: 30),
-
+        
                     Text(appVersion, style: const TextStyle(color: Colors.grey)),
                   ],
                 ),

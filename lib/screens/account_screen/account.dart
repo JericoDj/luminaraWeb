@@ -19,24 +19,29 @@ class _AccountScreenState extends State<AccountScreen> {
     return Scaffold(
 
       backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const UserAccountSection(),
-                const SizedBox(height: 20),
-                ConsultationStatusTabsWidget(),
-                const SizedBox(height: 20),
-                const AccountSettingsButtons(),
-                const SizedBox(height: 20),
-                const ContactSupportSection(),
-                const SizedBox(height: 20),
-                const LogoutButton(),
-                const SizedBox(height: 50),
-              ],
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+          child: Center(
+            child: Container(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const UserAccountSection(),
+                    const SizedBox(height: 20),
+                    ConsultationStatusTabsWidget(),
+                    const SizedBox(height: 20),
+                    const AccountSettingsButtons(),
+                    const SizedBox(height: 20),
+                    const ContactSupportSection(),
+                    const SizedBox(height: 20),
+                    const LogoutButton(),
+                    const SizedBox(height: 50),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

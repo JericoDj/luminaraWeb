@@ -36,6 +36,8 @@ class _BreathAwarenessMeditationScreenState extends State<BreathAwarenessMeditat
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false
+        ,
         title: const Text('Breath Awareness Meditation'),
       ),
       body: Center(
@@ -44,7 +46,7 @@ class _BreathAwarenessMeditationScreenState extends State<BreathAwarenessMeditat
           children: [
             const SizedBox(height: 20),
             Container(
-              width: 400,
+              width: 800,
               child: YoutubePlayer(controller: _controller),
             ),
             const SizedBox(height: 20),

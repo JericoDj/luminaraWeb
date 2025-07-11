@@ -110,9 +110,7 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
         );
       } catch (e) {
         print("❌ Firestore Error: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to start new session: $e")),
-        );
+
       }
     }
   }

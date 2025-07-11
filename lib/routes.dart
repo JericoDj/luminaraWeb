@@ -48,7 +48,8 @@ final GoRouter router = GoRouter(
         ),
         GoRoute(
           path: '/signup',
-          builder: (context, state) => SignUpScreen(),
+          builder: (context, state) => Container(
+              child: SignUpScreen()),
         ),
         GoRoute(
           path: '/forgot-password',
@@ -252,3 +253,5 @@ final GoRouter router = GoRouter(
     ),
   ],
 );
+
+

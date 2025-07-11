@@ -36,6 +36,7 @@ class _GratitudeMeditationScreenState extends State<GratitudeMeditationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Gratitude Meditation'),
       ),
       body: Center(
@@ -44,7 +45,7 @@ class _GratitudeMeditationScreenState extends State<GratitudeMeditationScreen> {
           children: [
             const SizedBox(height: 20),
             Container(
-              width: 400,
+              width: 800,
               child: YoutubePlayer(controller: _controller),
             ),
             const SizedBox(height: 20),

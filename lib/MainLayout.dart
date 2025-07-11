@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:luminarawebsite/Footer.dart';
+import 'package:luminarawebsite/providers/userProvider.dart';
+import 'package:provider/provider.dart';
 import '../utils/constants/colors.dart';
 
 class MainLayout extends StatelessWidget {
@@ -10,6 +12,7 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     final isLargeScreen = MediaQuery
         .of(context)
         .size
@@ -62,7 +65,17 @@ class MainLayout extends StatelessWidget {
         ),
         elevation: 2,
         flexibleSpace: _buildGradientBar(),
-        actions: isLargeScreen ? _buildAppBarButtons(context) : null,
+        actions: isLargeScreen
+            ? [
+          Consumer<UserProvider>(
+            builder: (_, userProvider, __) {
+              return Row(
+                children: _buildAppBarButtons(context, userProvider),
+              );
+            },
+          ),
+        ]
+            : null,
         leading: isLargeScreen
             ? null
             : Builder(
@@ -74,11 +87,13 @@ class MainLayout extends StatelessWidget {
         ),
       ),
       drawer: isLargeScreen ? null : _buildDrawer(context),
-      body: Column(
-        children: [
-          Expanded(child: child), // dynamic page content
-          const AppFooter(), // footer at the bottom
-        ],
+      body: Container(
+        child: Column(
+          children: [
+            Expanded(child: child), // dynamic page content
+            const AppFooter(), // footer at the bottom
+          ],
+        ),
       ),
     );
   }
@@ -111,17 +126,25 @@ class MainLayout extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildAppBarButtons(BuildContext context) {
+  List<Widget> _buildAppBarButtons(BuildContext context, UserProvider userProvider) {
+    final bool isLoggedIn = userProvider.isLoggedIn;
+
     return [
       _navButton(context, Icons.home, 'Home', '/home'),
       _navButton(context, Icons.eco, 'Growth Garden', '/growth-garden'),
       _navButton(context, Icons.calendar_today, 'Book Now', '/book-now'),
       _navButton(context, Icons.group, 'Community', '/community'),
       const SizedBox(width: 20),
-      _navButton(context, Icons.account_circle, 'Account', '/account'),
+      _navButton(
+        context,
+        isLoggedIn ? Icons.account_circle : Icons.login,
+        isLoggedIn ? (userProvider.fullName ?? 'Account') : 'Login',
+        isLoggedIn ? '/account' : '/login',
+      ),
       const SizedBox(width: 12),
     ];
   }
+
 
   Widget _navButton(BuildContext context, IconData icon, String label,
       String route) {

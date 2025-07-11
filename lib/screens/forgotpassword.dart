@@ -94,27 +94,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: isWeb ? 400 : double.infinity),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset("assets/images/logo/Logo_Square.png", width: 150, height: 150),
+                  Image.asset("assets/images/Logo_Square.png", width: 150, height: 150),
                   const SizedBox(height: 20),
-
+            
                   const Text("Forgot Password?",
                       style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-
+            
                   const Text("Enter your email to receive reset instructions",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: Colors.grey)),
                   const SizedBox(height: 30),
-
+            
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -125,7 +124,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-
+            
                   SizedBox(
                     height: 60,
                     width: double.infinity,
@@ -179,7 +178,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                   ),
-
+            
                   if (_emailSent) ...[
                     const SizedBox(height: 20),
                     SizedBox(
@@ -233,7 +232,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                   ],
-
+            
                   const SizedBox(height: 10),
                   TextButton(
                     onPressed: () => context.go("/login"),

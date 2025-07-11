@@ -36,6 +36,7 @@ class _BodyScanMeditationScreenState extends State<BodyScanMeditationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Body Scan Meditation'),
       ),
       body: Center(
@@ -44,7 +45,7 @@ class _BodyScanMeditationScreenState extends State<BodyScanMeditationScreen> {
           children: [
             const SizedBox(height: 20),
             Container(
-              width: 400,
+              width: 800,
               child: YoutubePlayer(controller: _controller),
             ),
             const SizedBox(height: 20),

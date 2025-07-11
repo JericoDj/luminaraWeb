@@ -43,10 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Center(
             child: Container(
               width: isWeb ? 400 : double.infinity,
               child: Column(
@@ -55,13 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   /// ✅ Logo
                   Image.asset(
-                    "assets/images/logo/Logo_Square.png",
+                    "assets/images/Logo_Square.png",
                     width: 150,
                     height: 150,
                   ),
-
+            
                   const SizedBox(height: 10),
-
+            
                   /// ✅ App Name and Subtitle
                   const Text(
                     "LUMINARA",
@@ -100,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-
+            
                   /// ✅ Email
                   TextField(
                     controller: controller.emailController, // 👈 bind here
@@ -114,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
+            
                   /// ✅ Password
                   TextField(
                     controller: controller.passwordController, // 👈 bind here
@@ -134,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
+            
                   /// ✅ Forgot Password
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -152,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   const SizedBox(height: 30),
-
+            
                   /// ✅ Sign-In Button
                   SizedBox(
                     height: 60,
@@ -179,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
+            
                   /// ✅ Create Account
                   const SizedBox(height: 30),
                   Row(
@@ -199,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   const SizedBox(height: 30),
-
+            
                   /// ✅ Version Info
                   Text(
                     appVersion,

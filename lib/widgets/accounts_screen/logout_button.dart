@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../controllers/login_controller/loginController.dart';
 import '../../utils/constants/colors.dart';
 
@@ -9,13 +9,12 @@ class LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure the LoginController is properly found or show error fallback
-
-
     return Center(
       child: OutlinedButton(
-        onPressed: () => {
-          context.push('/login'),
+        onPressed: () {
+          // 🔄 Access LoginController and call logout
+          final loginController = Provider.of<LoginController>(context, listen: false);
+          loginController.logout(context);
         },
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: MyColors.color2, width: 2.5),
@@ -25,8 +24,6 @@ class LogoutButton extends StatelessWidget {
           ),
           backgroundColor: Colors.white,
         ),
-
-
         child: Text(
           'Log Out',
           style: TextStyle(
@@ -38,5 +35,4 @@ class LogoutButton extends StatelessWidget {
       ),
     );
   }
-
 }

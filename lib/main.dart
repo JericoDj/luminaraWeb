@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:luminarawebsite/providers/userProvider.dart';
 import 'package:luminarawebsite/utils/constants/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:luminarawebsite/routes.dart';
@@ -15,6 +17,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  await GetStorage.init(); // <-- Required
+
+
   runApp(const MyApp());
 }
 
@@ -26,6 +31,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoginController()),
+        ChangeNotifierProvider(create: (_) => UserProvider()..loadUserData()),
 
         // Add more controllers if needed
       ],
@@ -35,7 +41,7 @@ class MyApp extends StatelessWidget {
         routeInformationParser: router.routeInformationParser,
         routeInformationProvider: router.routeInformationProvider,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: MyColors.color1),
+          colorScheme: ColorScheme.fromSeed(seedColor: MyColors.color2),
           textTheme: GoogleFonts.merriweatherTextTheme(),
         ),
         debugShowCheckedModeBanner: false,

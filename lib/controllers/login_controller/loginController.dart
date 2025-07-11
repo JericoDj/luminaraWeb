@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../providers/userProvider.dart';
 import '../../utils/storage/user_storage.dart';
 
 class LoginController extends ChangeNotifier {
@@ -94,6 +96,9 @@ class LoginController extends ChangeNotifier {
       await _userStorage.saveFCMToken();
       await checkAndStoreSafeCommunityAccess();
 
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.loadUserData(); // loads from GetStorage, updates state
+
       context.go('/home');
     } on FirebaseAuthException catch (e) {
       String message = switch (e.code) {
@@ -113,6 +118,9 @@ class LoginController extends ChangeNotifier {
   void logout(BuildContext context) {
     _auth.signOut();
     _userStorage.clearUid();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.loadUserData(); // loads from GetStorage, updates state
+    notifyListeners();
     context.go('/login');
   }
 

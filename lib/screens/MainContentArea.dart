@@ -38,14 +38,15 @@ class _MainContentAreaState extends State<MainContentArea> {
         child: Column(
           children: [
             if (isSmallScreen) ...[
-              _buildWelcomeText(),
-              const SizedBox(height: 30),
-              _buildImageCarousel(),
-              const SizedBox(height: 20),
-              SafeTalkButton(),
-              const SizedBox(height: 16),
-              _buildStoreButtons(),
-            ] else ...[
+
+          _buildWelcomeText(),
+        const SizedBox(height: 20), // smaller gap
+        _buildImageCarousel(),
+
+        SafeTalkButton(),
+        const SizedBox(height: 10),
+        _buildStoreButtons(),
+        ] else ...[
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +54,7 @@ class _MainContentAreaState extends State<MainContentArea> {
                   Expanded(
                     child: Column(
                       children: [
-                        const SizedBox(height: 100),
+
                         _buildWelcomeText(),
                         const SizedBox(height: 20),
                         SafeTalkButton(),
@@ -65,7 +66,7 @@ class _MainContentAreaState extends State<MainContentArea> {
                   const SizedBox(width: 40),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 50),
+                      padding: const EdgeInsets.only(top: 100),
                       child: _buildImageCarousel(),
                     ),
                   ),
@@ -83,28 +84,28 @@ class _MainContentAreaState extends State<MainContentArea> {
   Widget _buildWelcomeText() {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 1100;
+
     return Column(
       children: [
         Image.asset(
           "assets/images/Logo_Square.png",
-          height: isSmallScreen
-              ? MediaQuery.of(context).size.height * 0.13
-              : MediaQuery.of(context).size.height * 0.15,
+          height: isSmallScreen ? 80 : 120,
         ),
-        const Text(
+        SizedBox(height: isSmallScreen ? 10 :30),
+        Text(
           "Welcome to Luminara",
           style: TextStyle(
-            fontSize: 40,
+            fontSize: isSmallScreen ? 28 : 40,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           "Professional care for your emotional and mental well-being.",
           style: TextStyle(
-            fontSize: 16,
+            fontSize: isSmallScreen ? 14 : 16,
             color: Colors.black54,
           ),
           textAlign: TextAlign.center,
@@ -137,7 +138,8 @@ class _MainContentAreaState extends State<MainContentArea> {
             autoPlayCurve: Curves.easeInOut,
             autoPlayAnimationDuration: const Duration(seconds: 1),
             enableInfiniteScroll: true,
-            aspectRatio: 16 / 10,
+            aspectRatio: 10 / 8,
+
             viewportFraction: 1,
           ),
         );
@@ -153,9 +155,9 @@ class _MainContentAreaState extends State<MainContentArea> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.all(4),
+          padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             gradient: const LinearGradient(
               colors: [
                 Color(0xFFfcbc1d),
@@ -170,7 +172,7 @@ class _MainContentAreaState extends State<MainContentArea> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: AspectRatio(
-              aspectRatio: 15 / 7.5,
+              aspectRatio: 16 / 9, // more compact for mobile
               child: Image.asset(
                 imagePath,
                 fit: BoxFit.cover,
@@ -181,18 +183,19 @@ class _MainContentAreaState extends State<MainContentArea> {
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 6),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
       ],
     );
   }
+
 
   Widget _buildStoreButtons() {
     return Row(
@@ -216,7 +219,7 @@ class _MainContentAreaState extends State<MainContentArea> {
       onTap: onPressed,
       child: Image.asset(
         imagePath,
-        height: 80,
+        height: 90,
         fit: BoxFit.contain,
       ),
     );

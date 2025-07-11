@@ -14,6 +14,7 @@ class UserStorage {
   // ✅ Save UID locally
   Future<void> saveUid(String uid) async {
     await _storage.write("uid", uid);
+    print(uid);
   }
 
   // ✅ Retrieve UID
