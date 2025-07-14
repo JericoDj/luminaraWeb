@@ -111,7 +111,7 @@ class _UserAccountSectionState extends State<UserAccountSection> {
     return GestureDetector(
       onTap: () {
         _updateUserAvatar(avatarPath); // ✅ Update Firestore & UI
-        Navigator.pop(context);
+        Navigator.of(context, rootNavigator: true).pop();
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),

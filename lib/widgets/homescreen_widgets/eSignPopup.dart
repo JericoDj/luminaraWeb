@@ -1,19 +1,34 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:signature/signature.dart';
 
-class ESignPopup extends StatefulWidget {
+class ESignPopup extends StatelessWidget {
   final SignatureController signatureController;
 
   const ESignPopup({Key? key, required this.signatureController})
       : super(key: key);
 
-  @override
-  _ESignPopupState createState() => _ESignPopupState();
-}
 
-class _ESignPopupState extends State<ESignPopup> {
+  bool _isMobile(BuildContext context) {
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.android || platform == TargetPlatform.iOS;
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
+    String hintText;
+
+    if (kIsWeb) {
+      hintText = "Use left click and drag to sign.";
+    } else if (_isMobile(context)) {
+      hintText = "Use your finger to sign.";
+    } else {
+      hintText = "Use stylus or mouse to sign.";
+    }
+
+
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Rounded Dialog
       title: Row(
@@ -51,14 +66,17 @@ class _ESignPopupState extends State<ESignPopup> {
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: Signature(
-                    controller: widget.signatureController,
+                    controller: signatureController,
                     backgroundColor: Colors.white,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 10),
-            const Text("Use your finger or stylus to sign.", style: TextStyle(fontSize: 12, color: Colors.black54)),
+            Text(
+              hintText,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
           ],
         ),
       ),
@@ -67,7 +85,7 @@ class _ESignPopupState extends State<ESignPopup> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onTap: widget.signatureController.clear,
+              onTap: signatureController.clear,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
@@ -82,7 +100,7 @@ class _ESignPopupState extends State<ESignPopup> {
             ),
             GestureDetector(
               onTap: () {
-                if (widget.signatureController.isNotEmpty) {
+                if (signatureController.isNotEmpty) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Signature saved successfully!")),

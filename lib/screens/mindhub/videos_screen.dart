@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 class VideoItem {
@@ -189,21 +189,15 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     super.initState();
     _isYouTube = widget.video.isYouTube;
 
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-
     if (_isYouTube) {
-      final videoId = YoutubePlayer.convertUrlToId(widget.video.videoUrl);
+      final videoId = YoutubePlayerController.convertUrlToId(widget.video.videoUrl);
       if (videoId != null && videoId.isNotEmpty) {
-        _youtubeController = YoutubePlayerController(
-          initialVideoId: videoId,
-          flags: const YoutubePlayerFlags(
-            autoPlay: true,
-            mute: false,
-            enableCaption: true,
+        _youtubeController = YoutubePlayerController.fromVideoId(
+          videoId: videoId,
+          autoPlay: true,
+          params: const YoutubePlayerParams(
+            showControls: true,
+            showFullscreenButton: true,
           ),
         );
       } else {
@@ -211,10 +205,9 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Invalid YouTube video link.")),
           );
-          Navigator.of(context).pop(); // Close dialog
+          Navigator.of(context).pop();
         });
       }
-
     } else {
       _localController = VideoPlayerController.network(widget.video.videoUrl);
       _localController!
@@ -230,37 +223,25 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     if (_isYouTube) {
-      _youtubeController.dispose();
+      _youtubeController.close();
     } else {
       _localController?.dispose();
     }
     super.dispose();
   }
 
-  Widget _buildVideoPlayer(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-
-    return Stack(
-      children: [
-        if (_isYouTube)
-          YoutubePlayerBuilder(
-            player: YoutubePlayer(
-              controller: _youtubeController,
-              aspectRatio: isLandscape ? 16 / 9 : 16 / 9,
-            ),
-            builder: (context, player) => player,
-          )
-        else if (_localController != null && _localController!.value.isInitialized)
-          AspectRatio(
-            aspectRatio: _localController!.value.aspectRatio,
-            child: VideoPlayer(_localController!),
-          )
-        else
-          const Center(child: CircularProgressIndicator()),
-      ],
-    );
+  Widget _buildVideoPlayer() {
+    if (_isYouTube) {
+      return YoutubePlayer(controller: _youtubeController);
+    } else if (_localController != null && _localController!.value.isInitialized) {
+      return AspectRatio(
+        aspectRatio: _localController!.value.aspectRatio,
+        child: VideoPlayer(_localController!),
+      );
+    } else {
+      return const Center(child: CircularProgressIndicator());
+    }
   }
 
   @override
@@ -271,16 +252,13 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         width: 600,
-
+        height: 400,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Expanded(
-
-              flex: 1,
               child: Stack(
                 children: [
-                  _buildVideoPlayer(context),
+                  _buildVideoPlayer(),
                   if (!isLandscape)
                     Positioned(
                       top: 8,
@@ -294,20 +272,14 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
               ),
             ),
             if (!isLandscape)
-              Expanded(
-                flex: 3,
-                child: SingleChildScrollView(
-                  child: Padding(
-
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Text(widget.video.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 10),
-                        Text(widget.video.description, style: const TextStyle(fontSize: 16)),
-                      ],
-                    ),
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(widget.video.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    Text(widget.video.description),
+                  ],
                 ),
               ),
           ],

@@ -58,7 +58,7 @@ class _CallPageWidgetState extends State<CallPageWidget> {
   void initState() {
     super.initState();
 
-    _callController = widget.callController; // ✅ Assign the passed controller
+    _callController = widget.callController; // ✅ Asosign the passed controller
 
     // ✅ Track Call Status in Real-Time
     _trackCallStatus();
