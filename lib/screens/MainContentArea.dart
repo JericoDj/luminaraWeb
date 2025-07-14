@@ -215,16 +215,22 @@ class _MainContentAreaState extends State<MainContentArea> {
   }
 
   Widget _storeButton({required String imagePath, required VoidCallback onPressed}) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Image.asset(
-        imagePath,
-        height: 90,
-        fit: BoxFit.contain,
-      ),
+    return Builder(
+      builder: (context) {
+        final isSmallScreen = MediaQuery.of(context).size.width < 600;
+        final imageHeight = isSmallScreen ? 50.0 : 70.0;
+
+        return GestureDetector(
+          onTap: onPressed,
+          child: Image.asset(
+            imagePath,
+            height: imageHeight,
+            fit: BoxFit.contain,
+          ),
+        );
+      },
     );
   }
-
   void _showComingSoonDialog(String storeName) {
     showDialog(
       context: context,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -64,20 +65,41 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
-  void _handlePasswordReset() {
+  void _handlePasswordReset() async {
     if (_isCooldown) return;
 
     final email = _emailController.text.trim();
+    print('[RESET] Input email: $email');
+
     if (email.isEmpty || !email.contains('@')) {
       _showSnackBar('Please enter a valid email address.');
       return;
     }
 
-    setState(() => _emailSent = true);
-    _startCooldown();
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      print('[RESET] Email sent!');
 
-    _showSnackBar('Password reset email sent! Please check your inbox.');
+      setState(() {
+        _emailSent = true;
+      });
+
+      _startCooldown();
+      _showSnackBar('Password reset email sent! Please check your inbox.');
+    } on FirebaseAuthException catch (e) {
+      print('[RESET] FirebaseAuthException: ${e.code}');
+      String errorMessage = 'Something went wrong.';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email.';
+      }
+      _showSnackBar(errorMessage);
+    } catch (e) {
+      print('[RESET] Unknown error: $e');
+      _showSnackBar('Error sending reset email.');
+    }
   }
+
+
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -94,6 +116,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () async {
+      //     try {
+      //       await FirebaseAuth.instance.sendPasswordResetEmail(email: "dejesusjerico528@gmail.com");
+      //       print("Email sent!");
+      //     } catch (e) {
+      //       print("Error: $e");
+      //     }
+      //   },
+      //   child: Icon(Icons.send),
+      // ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Center(
