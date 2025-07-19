@@ -7,20 +7,7 @@ import '../../../../../controllers/call_controller.dart';
 import '../../../../../screens/homescreen/call_ended_screen.dart';
 
 class CallPageWidget extends StatefulWidget {
-  final bool connectingLoading;
-  final String roomId;
-  final bool isCaller;
-  final RTCVideoRenderer remoteVideo;
-  final RTCVideoRenderer localVideo;
-  final VoidCallback leaveCall;
-  final VoidCallback switchCamera;
-  final VoidCallback toggleCamera;
-  final VoidCallback toggleMic;
-  final bool isAudioOn;
-  final bool isVideoOn;
-  final String? sessionType;
-  final String? userId;
-  final CallController callController;
+
 
   const CallPageWidget({
     super.key,
@@ -39,6 +26,22 @@ class CallPageWidget extends StatefulWidget {
     this.sessionType,
     this.userId,
   });
+
+
+  final bool connectingLoading;
+  final String roomId;
+  final bool isCaller;
+  final RTCVideoRenderer remoteVideo;
+  final RTCVideoRenderer localVideo;
+  final VoidCallback leaveCall;
+  final VoidCallback switchCamera;
+  final VoidCallback toggleCamera;
+  final VoidCallback toggleMic;
+  final bool isAudioOn;
+  final bool isVideoOn;
+  final String? sessionType;
+  final String? userId;
+  final CallController callController;
 
   @override
   State<CallPageWidget> createState() => _CallPageWidgetState();

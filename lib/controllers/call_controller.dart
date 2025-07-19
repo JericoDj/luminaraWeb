@@ -11,7 +11,7 @@ class CallController {
   final Function(String) onRoomIdGenerated;
   final Function() onCallEnded;
   final Function() onConnectionEstablished;
-  final Function() onStateChanged; // Notify UI when state changes
+  final Function() onStateChanged;
 
   RTCPeerConnection? peerConnection;
   final RTCVideoRenderer localVideo = RTCVideoRenderer();
@@ -21,35 +21,41 @@ class CallController {
   bool isAudioOn = true;
   bool isVideoOn = true;
   bool isFrontCameraSelected = true;
-  bool _isNavigating = false; // ✅ Added flag to prevent multiple exits
+  bool _isNavigating = false;
 
   CallController({
     required this.fbCallService,
     required this.onRoomIdGenerated,
     required this.onCallEnded,
     required this.onConnectionEstablished,
-    required this.onStateChanged, // Pass state change callback
+    required this.onStateChanged,
   });
 
   Future<void> init(String? roomId) async {
     try {
       await remoteVideo.initialize();
+      remoteVideo.muted = false; // ✅ Ensure audio is not muted
 
-      // Set up remote stream handling
       peerConnection?.onTrack = (event) {
-        if (event.track.kind == 'video') {
+        final kind = event.track.kind;
+        debugPrint("📥 Track received: $kind");
+
+        if (event.streams.isNotEmpty) {
           remoteVideo.srcObject = event.streams.first;
-          onConnectionEstablished();
+          final audioTracks = event.streams.first.getAudioTracks();
+          debugPrint("🔊 Remote audio tracks: ${audioTracks.length}");
+        } else {
+          debugPrint("⚠️ No streams attached to remote track.");
         }
+
+        onConnectionEstablished();
       };
 
       if (roomId == null) {
-        // Create a new call
         String newRoomId = await fbCallService.call();
         onRoomIdGenerated(newRoomId);
         iceStatusListen();
       } else {
-        // Join an existing call
         await fbCallService.answer(roomId: roomId);
         iceStatusListen();
       }
@@ -58,46 +64,41 @@ class CallController {
     }
   }
 
-
   Future<void> openCamera() async {
     await localVideo.initialize();
     peerConnection = await fbCallService.createPeer();
 
-    final Map<String, dynamic> mediaConstraints = {
+    final mediaConstraints = {
       'audio': isAudioOn,
       'video': isVideoOn,
     };
 
-    // Get user media (camera and microphone)
     localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
-    // Add tracks to the peer connection
-    localStream!.getTracks().forEach((track) async {
+    for (var track in localStream!.getTracks()) {
       await peerConnection?.addTrack(track, localStream!);
-    });
+    }
 
-    // Set the local video source
     localVideo.srcObject = localStream;
   }
 
   void iceStatusListen() {
-    peerConnection?.onIceConnectionState = (iceConnectionState) async {
-      if (iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
-          iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
-        debugPrint("✅ WebRTC Connection Established");
+    peerConnection?.onIceConnectionState = (state) async {
+      debugPrint("ICE state: $state");
 
-        // ✅ Update UI State Immediately When Connection is Ready
+      if (state == RTCIceConnectionState.RTCIceConnectionStateConnected ||
+          state == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
+        debugPrint("✅ WebRTC Connected");
         onConnectionEstablished();
       }
 
-      if (iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
-          iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed) {
+      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+          state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
         debugPrint("❌ WebRTC Disconnected or Failed");
         onCallEnded();
       }
     };
   }
-
 
   void toggleMic() {
     final audioTrack = localStream?.getAudioTracks().first;
@@ -108,6 +109,7 @@ class CallController {
       debugPrint("❌ No audio track found");
     }
   }
+
   Future<void> toggleSpeaker(bool enableSpeaker) async {
     try {
       await Helper.setSpeakerphoneOn(enableSpeaker);
@@ -116,7 +118,6 @@ class CallController {
       debugPrint("❌ Error toggling speaker: $e");
     }
   }
-
 
   void toggleCamera() {
     isVideoOn = !isVideoOn;
@@ -133,44 +134,34 @@ class CallController {
     });
   }
 
-  /// ✅ Enhanced `dispose()` for Clean Exit and Navigation
   Future<void> dispose({
     required BuildContext context,
     String? userId,
     String? sessionType,
   }) async {
-    if (_isNavigating) return; // ✅ Prevent multiple exits
+    if (_isNavigating) return;
     _isNavigating = true;
 
     debugPrint("🔥 Leaving Call and Cleaning Resources...");
 
     try {
-      // ✅ Stop Media Tracks (Camera + Mic)
       localStream?.getTracks().forEach((track) => track.stop());
-
-      // ✅ Clean Video Renders
-          await localVideo.dispose();
-          await remoteVideo.dispose();
+      await localVideo.dispose();
+      await remoteVideo.dispose();
       localStream?.dispose();
       peerConnection?.dispose();
 
-      // ✅ Firestore Status Change
       if (userId != null && sessionType != null) {
         await FirebaseFirestore.instance
             .collection("safe_talk/${sessionType.toLowerCase()}/queue")
             .doc(userId)
-            .set({
-          'status': 'finished'
-        }, SetOptions(merge: true));
+            .set({'status': 'finished'}, SetOptions(merge: true));
       }
 
-      // ✅ Navigate Back Using `Navigator.pushReplacement`
       if (context.mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => CallEndedScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => CallEndedScreen()),
         );
         debugPrint("✅ Successfully Navigated Back!");
       } else {
