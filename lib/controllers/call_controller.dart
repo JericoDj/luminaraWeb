@@ -35,6 +35,8 @@ class CallController {
     try {
       await remoteVideo.initialize();
       remoteVideo.muted = false; // ✅ Ensure audio is not muted
+      await remoteVideo.audioOutput('default'); // or the actual device ID if known
+
 
       peerConnection?.onTrack = (event) {
         final kind = event.track.kind;

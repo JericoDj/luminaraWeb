@@ -53,6 +53,7 @@ class _CallPageState extends State<CallPage> {
     Future.delayed(const Duration(milliseconds: 100), () async {
       await _callController.openCamera();
       _callController.init(_currentRoomId);
+
     });
   }
 
