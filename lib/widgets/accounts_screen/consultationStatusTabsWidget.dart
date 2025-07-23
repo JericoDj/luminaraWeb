@@ -18,18 +18,61 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
   final RxString displayText = "Consultation Overview".obs;
 
   void navigateToDetailPage(BuildContext context, Consultation consultation) {
-    showDetailDialog(
+    showDialog(
       context: context,
-      serviceType: consultation.serviceType,
-      serviceId: consultation.serviceId,
-      status: consultation.status,
-      bookedDate: consultation.bookedDate,
-      bookedTime: consultation.bookedTime,
-      createdDate: consultation.createdDate,
-      meetingLink: consultation.meetingLink,
-      specialist: consultation.specialist,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Text(
+            consultation.serviceType,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDetailRow("Date:", consultation.bookedDate),
+              _buildDetailRow("Time:", consultation.bookedTime),
+              _buildDetailRow("Status:", consultation.status.capitalizeFirst ?? "-"),
+              const SizedBox(height: 12),
+              if (consultation.meetingLink != null && consultation.meetingLink!.isNotEmpty)
+                _buildDetailRow("Meeting Link:", consultation.meetingLink!),
+              if (consultation.specialist != null && consultation.specialist!.isNotEmpty)
+                _buildDetailRow("Specialist:", consultation.specialist!),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
     );
   }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "$label ",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.black87),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void updateDisplay(String status) {
     final count = consultationController.filteredConsultations.length;
@@ -116,7 +159,11 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
                   },
                   child: const Text(
                     "View All",
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -168,7 +215,10 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.serviceType, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(
+                    item.serviceType,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 4),
                   Row(
                     children: [

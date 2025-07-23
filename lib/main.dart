@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:luminarawebsite/routes.dart';
 import 'controllers/login_controller/loginController.dart';
 import 'controllers/session_controller.dart';
-import 'test/test/utils/firebase_options.dart';
+import 'firebase_options.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

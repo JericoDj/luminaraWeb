@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signature/signature.dart';
 import '../../utils/storage/user_storage.dart';
@@ -40,6 +41,14 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
   );
 
   Uint8List? _signatureImage;
+
+
+  bool _isUserDataValid() {
+    final uid = UserStorage().getUid();
+    final fullName = GetStorage().read("fullName"); // directly from local GetStorage
+
+    return uid != null && fullName != null && fullName.toString().trim().isNotEmpty;
+  }
 
   void _openESignPopup() async {
     await showDialog(
@@ -414,6 +423,16 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
   }
 
   void _showConfirmationDialog() async {
+    if (!_isUserDataValid()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No User found. Please log in again to proceed with booking."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     if (!_hasViewedContract || !_isContractChecked) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -435,14 +454,13 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       return;
     }
 
-    // Disable submit button to prevent multiple submissions
     setState(() {
       _isSubmitting = true;
     });
 
     try {
-      await _saveBookingToFirebase(); // Call function to save booking
-      _showSuccessDialog(); // Show confirmation after successful submission
+      await _saveBookingToFirebase();
+      _showSuccessDialog();
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -456,6 +474,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       });
     }
   }
+
 
   void _showSuccessDialog() {
     showDialog(

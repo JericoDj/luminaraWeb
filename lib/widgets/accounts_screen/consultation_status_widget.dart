@@ -1,159 +1,266 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../controllers/consultation_controller.dart';
+import '../../models/consultation_models.dart';
+import '../../utils/constants/colors.dart';
 
-class Consultation {
-  final String serviceType;
-  final String bookedDate;
-  final String bookedTime;
-  final String status;
+class ConsultationStatusTabsWidget extends StatelessWidget {
+  final ConsultationController controller = Get.put(ConsultationController());
+  final RxString displayText = "Consultation Overview".obs;
+  final RxString selectedStatus = "all".obs; // ✅ for active tab indicator
 
-  Consultation({
-    required this.serviceType,
-    required this.bookedDate,
-    required this.bookedTime,
-    required this.status,
-  });
-}
+  ConsultationStatusTabsWidget({super.key});
 
-class ConsultationStatusTabsWidget extends StatefulWidget {
-  const ConsultationStatusTabsWidget({super.key});
-
-  @override
-  State<ConsultationStatusTabsWidget> createState() => _ConsultationStatusTabsWidgetState();
-}
-
-class _ConsultationStatusTabsWidgetState extends State<ConsultationStatusTabsWidget> {
-  final RxString selectedStatus = 'all'.obs;
-
-  // Mock data
-  final RxList<Consultation> consultations = <Consultation>[
-    Consultation(serviceType: "Therapy", bookedDate: "2025-07-01", bookedTime: "10:00 AM", status: "requested"),
-    Consultation(serviceType: "Counseling", bookedDate: "2025-07-03", bookedTime: "3:00 PM", status: "scheduled"),
-    Consultation(serviceType: "Assessment", bookedDate: "2025-06-30", bookedTime: "1:00 PM", status: "completed"),
-  ].obs;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildStatusButtons(),
-            const SizedBox(height: 16),
-            _buildConsultationList(),
-          ],
-        )),
-      ),
-    );
-  }
-
-  Widget _buildStatusButtons() {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 10,
-      alignment: WrapAlignment.center,
-      children: [
-        _buildTabButton("All", "all", Icons.list),
-        _buildTabButton("Requests", "requested", Icons.request_page),
-        _buildTabButton("Scheduled", "scheduled", Icons.schedule),
-        _buildTabButton("Finished", "completed", Icons.check_circle),
-      ],
-    );
-  }
-
-  Widget _buildTabButton(String label, String value, IconData icon) {
-    final isSelected = selectedStatus.value == value;
-    return GestureDetector(
-      onTap: () => selectedStatus.value = value,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.green.withOpacity(0.5), blurRadius: 10)]
-                  : [BoxShadow(color: Colors.black12, blurRadius: 6)],
-            ),
-            child: Icon(icon, color: isSelected ? Colors.green : Colors.black54),
+  void _showConsultationDialog(BuildContext context, Consultation consultation) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Text(
+          consultation.serviceType,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDetailRow("Booked Date", consultation.bookedDate),
+              _buildDetailRow("Booked Time", consultation.bookedTime),
+              _buildDetailRow("Created Date", consultation.createdDate),
+              _buildDetailRow("Created Time", consultation.createdTime),
+              _buildDetailRow("Status", consultation.status.capitalizeFirst ?? "-"),
+              if (consultation.meetingLink != null && consultation.meetingLink!.isNotEmpty)
+                _buildDetailRow("Meeting Link", consultation.meetingLink!, isLink: true, context: context),
+              if (consultation.specialist != null && consultation.specialist!.isNotEmpty)
+                _buildDetailRow("Specialist", consultation.specialist!),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.green : Colors.black,
-            ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+            child: const Text("Close"),
           ),
-          if (isSelected)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              height: 3,
-              width: 40,
-              color: Colors.green,
-            ),
         ],
       ),
     );
   }
 
-  Widget _buildConsultationList() {
-    final filtered = selectedStatus.value == "all"
-        ? consultations
-        : consultations.where((c) => c.status == selectedStatus.value).toList();
+  Widget _buildDetailRow(String label, String value, {bool isLink = false, BuildContext? context}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: isLink && context != null
+                ? Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      color: MyColors.color1,
+                      decoration: TextDecoration.underline,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.open_in_new, size: 20, color: MyColors.color1),
+                  onPressed: () async {
+                    final uri = Uri.parse(value);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Could not open the link')),
+                      );
+                    }
+                  },
+                ),
+              ],
+            )
+                : Text(value),
+          ),
+        ],
+      ),
+    );
+  }
 
-    if (filtered.isEmpty) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(vertical: 40),
+  void _updateStatus(String status) {
+    selectedStatus.value = status;
+    controller.filterConsultations(status);
+
+    int count = controller.filteredConsultations.length;
+    displayText.value = status == "requested"
+        ? "Requests: You have $count pending requests."
+        : status == "scheduled"
+        ? "Scheduled: You have $count consultations scheduled."
+        : status == "completed"
+        ? "Finished: You have completed $count consultations."
+        : "Consultation Overview";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(12),
+          gradient: const LinearGradient(
+            colors: [Colors.white30, Colors.white24],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Text(
-          "No ${selectedStatus.value} consultations.",
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        child: Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 30,
+              children: [
+                _buildStatusIcon(Icons.list, "All", "all", controller.consultations.length, () {
+                  _updateStatus("all");
+                }),
+                _buildStatusIcon(Icons.request_page, "Requests", "requested", controller.calculatePendingCount, () {
+                  _updateStatus("requested");
+                }),
+                _buildStatusIcon(Icons.schedule, "Scheduled", "scheduled", controller.calculateScheduledCount, () {
+                  _updateStatus("scheduled");
+                }),
+                _buildStatusIcon(Icons.check_circle, "Finished", "completed", controller.calculateFinishedCount, () {
+                  _updateStatus("completed");
+                }),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _buildConsultationList(context),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  Widget _buildStatusIcon(IconData icon, String label, String statusKey, int count, VoidCallback onTap) {
+    return Obx(() {
+      final isSelected = selectedStatus.value == statusKey;
+      return GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: isSelected
+                        ? Border.all(color: MyColors.color2, width: 2)
+                        : null,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Icon(icon, color: MyColors.color1, size: 30),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            if (count > 0)
+              Positioned(
+                top: -5,
+                right: -5,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: MyColors.color2,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+          ],
         ),
       );
-    }
+    });
+  }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // Wrap handles scroll
-      itemCount: filtered.length,
-      itemBuilder: (context, index) {
-        final item = filtered[index];
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(10),
+  Widget _buildConsultationList(BuildContext context) {
+    return Obx(() {
+      final filtered = controller.filteredConsultations;
+      return Container(
+        height: 350,
+        decoration: BoxDecoration(
+          color: Colors.black12,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.all(10),
+        child: filtered.isEmpty
+            ? const Center(
+          child: Text(
+            "No consultations.",
+            style: TextStyle(color: Colors.black54, fontSize: 16),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(item.serviceType, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text(item.bookedDate),
-                  const Spacer(),
-                  Text(item.bookedTime),
-                ],
+        )
+            : ListView.builder(
+          itemCount: filtered.length,
+          itemBuilder: (context, index) {
+            final item = filtered[index];
+            return GestureDetector(
+              onTap: () => _showConsultationDialog(context, item),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.serviceType, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(item.bookedDate),
+                        const Spacer(),
+                        Text(item.bookedTime),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        );
-      },
-    );
+            );
+          },
+        ),
+      );
+    });
   }
 }

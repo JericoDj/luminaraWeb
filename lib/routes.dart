@@ -23,6 +23,7 @@ import 'package:luminarawebsite/screens/homescreen/safe_space/safetalk.dart';
 import 'package:luminarawebsite/screens/loginscreen.dart';
 import 'package:luminarawebsite/test/test/test.dart';
 import 'package:luminarawebsite/widgets/accounts_screen/TIcket_Popup_widget.dart';
+import 'package:luminarawebsite/widgets/accounts_screen/ticket_detail_page.dart';
 
 
 import 'MainLayout.dart';
@@ -248,6 +249,16 @@ final GoRouter router = GoRouter(
             roomId: null,
             isCaller: true,
           ),
+        ),
+
+        // Inside your GoRouter routes:
+        GoRoute(
+          path: '/ticket/:id',
+          name: 'ticketDetail',
+          builder: (context, state) {
+            final ticketId = state.pathParameters['id']!;
+            return TicketDetailPage(ticketId: ticketId);
+          },
         ),
 
       ],
