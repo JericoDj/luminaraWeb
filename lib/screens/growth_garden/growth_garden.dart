@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luminarawebsite/Footer.dart';
 import 'package:luminarawebsite/screens/growth_garden/widgets/gratitude_journaling_widget/gratitude_journaling_widget.dart';
 import 'package:luminarawebsite/screens/growth_garden/widgets/insight_quest.dart';
 import 'package:luminarawebsite/screens/growth_garden/widgets/mindhub.dart';
@@ -124,6 +125,7 @@ class GrowthGardenScreen extends StatelessWidget {
 
 
                 const SizedBox(height: 30),
+                AppFooter(),
               ],
             ),
           );

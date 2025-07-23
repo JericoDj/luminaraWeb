@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import '../Footer.dart';
 import '../widgets/homescreen_widgets/safe_talk_button.dart';
 
 class MainContentArea extends StatefulWidget {
@@ -75,7 +76,10 @@ class _MainContentAreaState extends State<MainContentArea> {
               )
             ],
             const SizedBox(height: 60),
+            AppFooter(),
           ],
+
+
         ),
       ),
     );

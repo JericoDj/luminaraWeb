@@ -67,9 +67,25 @@ class QuickWellnessTools extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _dialogOption(context, 'Box Breathing (4-4-4-4)', 'Inhale, hold, exhale, hold for 4 seconds each.', () => _navigateToBreathingScreen(context, 'Box Breathing')),
-              _dialogOption(context, '4-7-8 Breathing', 'Inhale for 4s, hold for 7s, exhale for 8s.', () => _navigateToBreathingScreen(context, '4-7-8 Breathing')),
-              _dialogOption(context, 'Alternate Nostril Breathing', 'Breathe through alternate nostrils.', () => _navigateToBreathingScreen(context, 'Alternate Nostril Breathing')),
+              _dialogOption(
+                context,
+                'Box Breathing (4-4-4-4)',
+                'Inhale, hold, exhale, hold for 4 seconds each.',
+                    () => context.go('/box-breathing'),
+              ),
+              _dialogOption(
+                context,
+                '4-7-8 Breathing',
+                'Inhale for 4s, hold for 7s, exhale for 8s.',
+                    () => context.go('/4-7-8-breathing'),
+              ),
+              _dialogOption(
+                context,
+                'Alternate Nostril Breathing',
+                'Breathe through alternate nostrils.',
+                    () => context.go('/alternate-nostril-breathing'),
+              ),
+
             ],
           ),
         );
@@ -96,9 +112,25 @@ class QuickWellnessTools extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _dialogOption(context, 'Body Scan Meditation', 'Relax by focusing on different body parts.', () => _navigateToMeditationScreen(context, 'Body Scan Meditation')),
-              _dialogOption(context, 'Gratitude Meditation', 'Focus on things you are grateful for.', () => _navigateToMeditationScreen(context, 'Gratitude Meditation')),
-              _dialogOption(context, 'Breath Awareness Meditation', 'Focus on your natural breathing pattern.', () => _navigateToMeditationScreen(context, 'Breath Awareness Meditation')),
+              _dialogOption(
+                context,
+                'Body Scan Meditation',
+                'Relax by focusing on different body parts.',
+                    () => context.go('/meditation/body-scan'),
+              ),
+              _dialogOption(
+                context,
+                'Gratitude Meditation',
+                'Focus on things you are grateful for.',
+                    () => context.go('/meditation/gratitude'),
+              ),
+              _dialogOption(
+                context,
+                'Breath Awareness Meditation',
+                'Focus on your natural breathing pattern.',
+                    () => context.go('/meditation/breath-awareness'),
+              ),
+
             ],
           ),
         );

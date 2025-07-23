@@ -116,7 +116,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                   onHorizontalDragEnd: (_) {
                     if (_dragReachedEnd) {
                       Navigator.of(context).pop();
-                      context.push('/calling-customer-support');
+                      context.go('/calling-customer-support');
                     } else {
                       setState(() => _dragPosition = 0);
                     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import '../../../Footer.dart';
 import '../../../utils/constants/colors.dart';
 
 class BreathAwarenessMeditationScreen extends StatefulWidget {
@@ -40,22 +41,26 @@ class _BreathAwarenessMeditationScreenState extends State<BreathAwarenessMeditat
         ,
         title: const Text('Breath Awareness Meditation'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 20),
-            Container(
-              width: 800,
-              child: YoutubePlayer(controller: _controller),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Welcome to Breath Awareness Meditation",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                width: 800,
+                child: YoutubePlayer(controller: _controller),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Welcome to Breath Awareness Meditation",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 100),
+              AppFooter(),
+            ],
+          ),
         ),
       ),
     );

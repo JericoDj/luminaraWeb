@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
+
+import '../../utils/constants/colors.dart';
 class VideoItem {
   final String title;
   final String description;
@@ -40,6 +42,8 @@ class MindHubVideosScreen extends StatelessWidget {
   const MindHubVideosScreen({Key? key}) : super(key: key);
 
   Future<List<VideoItem>> _fetchVideosFromFirestore() async {
+
+
     try {
       final doc = await FirebaseFirestore.instance
           .collection('contents')
@@ -70,6 +74,7 @@ class MindHubVideosScreen extends StatelessWidget {
   void _showVideoDialog(BuildContext context, VideoItem video) {
     showDialog(
       context: context,
+      barrierDismissible: true, // Allow tapping outside to dismiss
       builder: (context) => VideoPlayerDialog(video: video),
     );
   }
@@ -173,7 +178,9 @@ class MindHubVideosScreen extends StatelessWidget {
 class VideoPlayerDialog extends StatefulWidget {
   final VideoItem video;
 
+
   const VideoPlayerDialog({Key? key, required this.video}) : super(key: key);
+
 
   @override
   _VideoPlayerDialogState createState() => _VideoPlayerDialogState();
@@ -183,6 +190,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
   late YoutubePlayerController _youtubeController;
   VideoPlayerController? _localController;
   late bool _isYouTube;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -223,6 +231,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
 
   @override
   void dispose() {
+    _scrollController.dispose(); // Don't forget to dispose
     if (_isYouTube) {
       _youtubeController.close();
     } else {
@@ -232,59 +241,102 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
   }
 
   Widget _buildVideoPlayer() {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     if (_isYouTube) {
-      return YoutubePlayer(controller: _youtubeController);
+      return SizedBox(
+        width: screenWidth,
+        child: YoutubePlayer(controller: _youtubeController),
+      );
     } else if (_localController != null && _localController!.value.isInitialized) {
-      return AspectRatio(
-        aspectRatio: _localController!.value.aspectRatio,
-        child: VideoPlayer(_localController!),
+      return SizedBox(
+        width: screenWidth,
+        child: AspectRatio(
+          aspectRatio: 16 / 9, // Force 16:9 even for local videos
+          child: VideoPlayer(_localController!),
+        ),
       );
     } else {
       return const Center(child: CircularProgressIndicator());
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Fixed width for large screens
+    final dialogWidth = screenWidth >= 900 ? 800.0 : screenWidth * 0.95;
+    final videoHeight = dialogWidth * 9 / 16;
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        width: 600,
-        height: 400,
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: dialogWidth,
+          maxHeight: screenHeight * 0.9,
+        ),
+        child: RawScrollbar(
+          controller: _scrollController,
+          thumbColor: MyColors.color2,
+          radius: const Radius.circular(8),
+          thickness: 10,
+          trackVisibility: true,
+          thumbVisibility: true,
+          interactive: true,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth > 800 ? 40 : 10,
+                vertical: 10,
+              ),
+              child: Column(
                 children: [
-                  _buildVideoPlayer(),
-                  if (!isLandscape)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white, size: 28),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
+                  // Close Button
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.black, size: 24),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
+                  ),
+
+                  // Video Player
+                  SizedBox(
+                    width: dialogWidth,
+                    height: videoHeight,
+                    child: _buildVideoPlayer(),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Text Info
+                  Text(
+                    widget.video.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    widget.video.description,
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ],
               ),
             ),
-            if (!isLandscape)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(widget.video.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Text(widget.video.description),
-                  ],
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
   }
+
 }

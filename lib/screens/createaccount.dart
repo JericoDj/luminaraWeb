@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../Footer.dart';
 import '../utils/constants/colors.dart';
 import '../version.dart';
 
@@ -196,6 +197,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const SizedBox(height: 30),
         
                     Text(appVersion, style: const TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 30),
+                    AppFooter(),
                   ],
                 ),
               ),

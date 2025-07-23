@@ -141,18 +141,28 @@ class CallController {
     String? userId,
     String? sessionType,
   }) async {
-    if (_isNavigating) return;
-    _isNavigating = true;
-
     debugPrint("🔥 Leaving Call and Cleaning Resources...");
 
     try {
-      localStream?.getTracks().forEach((track) => track.stop());
+      // Stop tracks
+      if (localStream != null) {
+        for (var track in localStream!.getTracks()) {
+          track.stop();
+        }
+      }
+
+      // Detach from renderers
+      localVideo.srcObject = null;
+      remoteVideo.srcObject = null;
+
+      // Dispose
       await localVideo.dispose();
       await remoteVideo.dispose();
-      localStream?.dispose();
-      peerConnection?.dispose();
+      await localStream?.dispose();
+      await peerConnection?.close();
+      await peerConnection?.dispose();
 
+      // Update Firestore status
       if (userId != null && sessionType != null) {
         await FirebaseFirestore.instance
             .collection("safe_talk/${sessionType.toLowerCase()}/queue")
@@ -160,19 +170,11 @@ class CallController {
             .set({'status': 'finished'}, SetOptions(merge: true));
       }
 
-      if (context.mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => CallEndedScreen()),
-        );
-        debugPrint("✅ Successfully Navigated Back!");
-      } else {
-        debugPrint("❗ Unable to Navigate Back. Context is Unmounted.");
-      }
+      debugPrint("✅ Resources cleaned up.");
+
     } catch (e) {
       debugPrint("❌ Error during Leave Call Process: $e");
     }
-
-    _isNavigating = false;
   }
+
 }

@@ -97,11 +97,11 @@ class _CallPageWidgetState extends State<CallPageWidget> {
   }
 
   @override
+  @override
   void dispose() {
     _statusSubscription?.cancel();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,73 +149,73 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Mic Button
-                    GestureDetector(
-                      onTap: () {
-                        widget.toggleMic(); // ✅ Call the passed-in function
-
-                        // Try to reflect mic state UI-wise
-                        setState(() {
-                          isMicMuted = !isMicMuted;
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey.shade700, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                isMicMuted ? Icons.mic_off : Icons.mic,
-                                color: Colors.grey.shade700,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(isMicMuted ? "Unmute" : "Mute"),
-                        ],
-                      ),
-                    ),
-
-                    // Speaker Button
-                    GestureDetector(
-                      onTap: () async {
-                        final newSpeakerState = !isSpeakerMuted;
-                        await _callController.toggleSpeaker(newSpeakerState);
-                        setState(() {
-                          isSpeakerMuted = newSpeakerState;
-
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey.shade700, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                isSpeakerMuted ? Icons.volume_up : Icons.volume_off,
-                                color: Colors.grey.shade700,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(isSpeakerMuted ? "Speaker On" : "Speaker Off"),
-                        ],
-                      ),
-                    ),
+                    // // Mic Button
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     widget.toggleMic(); // ✅ Call the passed-in function
+                    //
+                    //     // Try to reflect mic state UI-wise
+                    //     setState(() {
+                    //       isMicMuted = !isMicMuted;
+                    //     });
+                    //   },
+                    //   child: Column(
+                    //     children: [
+                    //       Container(
+                    //         padding: const EdgeInsets.all(4),
+                    //         decoration: BoxDecoration(
+                    //           shape: BoxShape.circle,
+                    //           border: Border.all(color: Colors.grey.shade700, width: 2),
+                    //         ),
+                    //         child: CircleAvatar(
+                    //           radius: 30,
+                    //           backgroundColor: Colors.white,
+                    //           child: Icon(
+                    //             isMicMuted ? Icons.mic_off : Icons.mic,
+                    //             color: Colors.grey.shade700,
+                    //             size: 30,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 8),
+                    //       Text(isMicMuted ? "Unmute" : "Mute"),
+                    //     ],
+                    //   ),
+                    // ),
+                    //
+                    // // Speaker Button
+                    // GestureDetector(
+                    //   onTap: () async {
+                    //     final newSpeakerState = !isSpeakerMuted;
+                    //     await _callController.toggleSpeaker(newSpeakerState);
+                    //     setState(() {
+                    //       isSpeakerMuted = newSpeakerState;
+                    //
+                    //     });
+                    //   },
+                    //   child: Column(
+                    //     children: [
+                    //       Container(
+                    //         padding: const EdgeInsets.all(4),
+                    //         decoration: BoxDecoration(
+                    //           shape: BoxShape.circle,
+                    //           border: Border.all(color: Colors.grey.shade700, width: 2),
+                    //         ),
+                    //         child: CircleAvatar(
+                    //           radius: 30,
+                    //           backgroundColor: Colors.white,
+                    //           child: Icon(
+                    //             isSpeakerMuted ? Icons.volume_up : Icons.volume_off,
+                    //             color: Colors.grey.shade700,
+                    //             size: 30,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 8),
+                    //       Text(isSpeakerMuted ? "Speaker On" : "Speaker Off"),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
 

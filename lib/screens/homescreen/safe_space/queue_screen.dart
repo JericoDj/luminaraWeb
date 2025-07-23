@@ -238,42 +238,30 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
   // ✅ LEAVE CALL: Ends the active session (video call or chat)
   Future<void> _leaveCall() async {
-    if (_isNavigating) return; // Prevent duplicate actions
+    if (_isNavigating) return;
     _isNavigating = true;
 
-    // ✅ End Call or Chat Based on Session Type
-    if (widget.sessionType.toLowerCase() == "talk") {
-      await _callController.dispose(
-        context: context,
-        userId: widget.userId,
-        sessionType: widget.sessionType,
-      );
-    } else if (widget.sessionType.toLowerCase() == "chat") {
-      await _callController.dispose(
-        context: context,
-        userId: widget.userId,
-        sessionType: widget.sessionType,
-      );
+    // ✅ Properly dispose all call resources
+    await _callController.dispose(
+      context: context,
+      userId: widget.userId,
+      sessionType: widget.sessionType,
+    );
 
-    }
-
-    // ✅ Navigate to Call Ended Screen
+    // ✅ Navigate to Call Ended
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const CallEndedScreen()),
-      ).then((_) {
-        if (mounted) {
-          setState(() {
-            _isNavigating = false;
-            connectingLoading = false;
-          });
-        }
+      context.go('/call-ended');
+
+      setState(() {
+        _isNavigating = false;
+        connectingLoading = false;
       });
 
-      print("✅ Successfully ended session.");
+      print("✅ Successfully ended session and cleaned up.");
     }
   }
+
+
 
   Future<void> _leaveQueue() async {
     if (_hasLeftQueue || _isNavigating) return;

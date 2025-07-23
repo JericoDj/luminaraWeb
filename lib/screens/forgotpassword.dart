@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Footer.dart';
 import '../utils/constants/colors.dart';
 import '../version.dart';
 
@@ -281,6 +282,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: 50),
                   Text(appVersion, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                  const SizedBox(height: 30),
+                  AppFooter(),
                 ],
               ),
             ),

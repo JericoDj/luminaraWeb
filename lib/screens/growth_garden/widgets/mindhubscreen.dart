@@ -51,44 +51,7 @@ class _MindHubScreenState extends State<MindHubScreen> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("Mind Hub - $selectedCategory"),
-          toolbarHeight: 65,
-          flexibleSpace: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.orange,
-                        Colors.orangeAccent,
-                        Colors.green,
-                        Colors.greenAccent
-                      ],
-                      stops: const [0.0, 0.5, 0.5, 1.0],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+
         body: selectedScreen, // Updates dynamically based on selection
         bottomNavigationBar: Container(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),

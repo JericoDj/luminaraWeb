@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:luminarawebsite/Footer.dart';
 import '../controllers/login_controller/loginController.dart';
 import '../utils/constants/colors.dart';
 import '../version.dart';
@@ -204,6 +205,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     appVersion,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
+
+                  const SizedBox(height: 30),
+
+                  AppFooter(),
                 ],
               ),
             ),

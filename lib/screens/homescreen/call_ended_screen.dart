@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import '../../../widgets/navigation_bar.dart';
 
 class CallEndedScreen extends StatelessWidget {
@@ -30,7 +31,8 @@ class CallEndedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap: () => Get.offAll(() => NavigationBarMenu(dailyCheckIn: false)),
+              onTap: () => context.go('/home'),
+
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 decoration: BoxDecoration(

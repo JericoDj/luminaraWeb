@@ -36,12 +36,29 @@ import 'screens/account_screen/account.dart';
 final GoRouter router = GoRouter(
   initialLocation: '/home',
 
+  errorBuilder: (context, state) {
+    // Delay the redirect to avoid calling `go()` during build
+    Future.microtask(() => context.go('/home'));
+
+    // While redirecting, show a temporary blank container
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  },
+
+
   routes: [
     ShellRoute(
       builder: (context, state, child) {
         return MainLayout(child: child); // Persistent AppBar
       },
       routes: [
+
+        GoRoute(
+          path: '/',
+          redirect: (_, __) => '/home',
+        ),
+
 
         //Authentication Routes
 

@@ -13,7 +13,7 @@ class AppFooter extends StatelessWidget {
       color: Colors.white,
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        vertical: isSmallScreen ? 5 : 24,
+
         horizontal: isSmallScreen ? 16 : 40,
       ),
       child: Column(
@@ -56,6 +56,7 @@ class AppFooter extends StatelessWidget {
                   fontSize: isSmallScreen ? 11 : isTablet ? 12 : 13,
                 ),
               ),
+              const SizedBox(height: 10),
             ],
           ),
         ],

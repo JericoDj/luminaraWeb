@@ -10,13 +10,47 @@ class MainLayout extends StatelessWidget {
 
   const MainLayout({super.key, required this.child});
 
+
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final isLargeScreen = MediaQuery
-        .of(context)
-        .size
-        .width >= 1100;
+    final isLargeScreen = MediaQuery.of(context).size.width >= 1100;
+
+    // 👇 Add this list here
+    final List<String> hideFooterPaths = [
+      '/mindhub/Articles',
+      '/mindhub/Videos',
+      '/mindhub/Ebooks',
+      '/home',
+      '/growth-garden',
+      '/alternate-nostril-breathing',
+      '/box-breathing',
+      '/4-7-8-breathing',
+      '/meditation/body-scan',
+      '/meditation/breath-awareness',
+      '/meditation/gratitude',
+      '/insight-quest',
+      '/login',
+      '/signup',
+      '/forgot-password',
+
+
+
+
+
+
+
+
+
+
+    ];
+
+    final currentPath = GoRouterState.of(context).uri.path;
+
+    // 👇 Determine whether to show footer or not
+    final shouldShowFooter = !hideFooterPaths.any((path) =>
+    currentPath == path || currentPath.startsWith('$path/'));
 
     return Scaffold(
       appBar: AppBar(
@@ -87,14 +121,12 @@ class MainLayout extends StatelessWidget {
         ),
       ),
       drawer: isLargeScreen ? null : _buildDrawer(context),
-      body: Container(
-        child: Column(
+        body: Column(
           children: [
-            Expanded(child: child), // dynamic page content
-            const AppFooter(), // footer at the bottom
+            Expanded(child: child),
+            if (shouldShowFooter) const AppFooter(),
           ],
         ),
-      ),
     );
   }
 

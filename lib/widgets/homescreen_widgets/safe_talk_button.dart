@@ -8,7 +8,7 @@ class SafeTalkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/safe-talk'),
+      onTap: () => context.go('/safe-talk'),
       child: Container(
         width: 300,
         padding: EdgeInsets.all(2), // Creates a thick border effect

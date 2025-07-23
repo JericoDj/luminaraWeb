@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:luminarawebsite/Footer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/constants/colors.dart';
 
@@ -74,6 +76,7 @@ class SafeSpaceHubArticles extends StatelessWidget {
                       itemCount: articles.length,
                       itemBuilder: (context, index) => _buildArticleCard(context, articles[index]),
                     ),
+
                   ],
                 ),
               ),
@@ -116,43 +119,82 @@ class SafeSpaceHubArticles extends StatelessWidget {
   }
 
   void _showArticleDialog(BuildContext context, Article article) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final width = MediaQuery.of(context).size.width * (isMobile ? 0.9 : 0.6);
+    final height = MediaQuery.of(context).size.height * (isMobile ? 0.9 : 0.6);
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
+        child: Container(
+          width: width,
+          height: height,
           padding: const EdgeInsets.all(12),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(article.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-              const SizedBox(height: 12),
+              // Header with Close Icon
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      article.title,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Divider(),
+              // Article Content Scrollable
               Expanded(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Column(
-                    children: article.contents.map((p) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(p, style: const TextStyle(fontSize: 16)),
-                    )).toList(),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...article.contents.map(
+                            (p) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            p,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (article.sources.isNotEmpty)
+                        TextButton(
+                          onPressed: () async {
+                            final url = article.sources.first;
+                            if (await canLaunchUrl(Uri.parse(url))) {
+                              await launchUrl(Uri.parse(url));
+                            } else {
+                              debugPrint("Could not launch $url");
+                            }
+                          },
+                          child: const Text(
+                            "View Source",
+                            style: TextStyle(color: MyColors.color2),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              if (article.sources.isNotEmpty)
-                TextButton(
-                  onPressed: () {
-                    // open first source (for demo)
-                    final url = article.sources.first;
-                    // use url_launcher if you want to launch in browser
-                  },
-                  child: const Text("View Source", style: TextStyle(color: MyColors.color2)),
-                ),
             ],
           ),
         ),
       ),
     );
   }
+
 }
 
 class Article {

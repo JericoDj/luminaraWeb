@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../controllers/call_controller.dart';
@@ -42,6 +43,8 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
     final seconds = _callDurationSeconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
+
+  bool _isEndingCall = false;
 
 
   // ✅ New Variable to Track Queue Count
@@ -203,6 +206,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
   }
 
   void _leaveCall() async {
+    setState(() => _isEndingCall = true);
     if (_currentRoomId != null && _currentUserId != null) {
       // ✅ Step 1: Update Firestore Status to 'finished'
       try {
@@ -215,8 +219,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
         debugPrint("❌ Error Updating Firestore Status: $e");
       }
 
-      // ✅ Step 2: Delay to Ensure Firestore Update Completes
-      await Future.delayed(const Duration(milliseconds: 300));
+
 
       // ✅ Step 3: Delete Firebase Document (Cleanup)
       try {
@@ -243,7 +246,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
 
       // ✅ Step 6: Navigate to Call Ended Screen
       if (mounted) {
-        Get.off(() => CallEndedScreen());
+        context.go('/call-ended');
       }
     } else {
       debugPrint("❌ ERROR: Room ID or User ID is null. Unable to leave the call.");
@@ -307,78 +310,60 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    GestureDetector(
-                onTap: () {
-                      _callController.toggleMic();
-                          final audioTrack = _callController.localStream?.getAudioTracks().first;
-                            if (audioTrack != null) {
-                              setState(() {
-                            isMicMuted = !audioTrack.enabled;
-                          });
-                        }
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: MyColors.color2, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                isMicMuted ? Icons.mic_off : Icons.mic,
-                                color: MyColors.color2,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(isMicMuted ? "Unmute" : "Mute"),
-                        ],
-                      ),
-                    ),
-
-                     GestureDetector(
-                      onTap: () async {
-                        final newSpeakerState = !isSpeakerMuted;
-                        await _callController.toggleSpeaker(newSpeakerState);
-                        setState(() {
-                          isSpeakerMuted = newSpeakerState;
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: MyColors.color2, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                isSpeakerMuted ? Icons.volume_up : Icons.volume_down_sharp,
-                                color: MyColors.color2,
-                                size: 30,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(isSpeakerMuted ? "Speaker on" : "Speaker Off"),
-                        ],
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: _leaveCall,
+                    //   child: CircleAvatar(
+                    //     radius: 40,
+                    //     backgroundColor: Colors.redAccent,
+                    //     child: const Icon(
+                    //       Icons.call_end,
+                    //       color: Colors.white,
+                    //       size: 40,
+                    //     ),
+                    //   ),
+                    // ),
+                    //
+                    //
+                    // GestureDetector(
+                    //   onTap: () async {
+                    //     final newSpeakerState = !isSpeakerMuted;
+                    //     await _callController.toggleSpeaker(newSpeakerState);
+                    //     setState(() {
+                    //       isSpeakerMuted = newSpeakerState;
+                    //     });
+                    //   },
+                    //   child: Column(
+                    //     children: [
+                    //       Container(
+                    //         padding: const EdgeInsets.all(4),
+                    //         decoration: BoxDecoration(
+                    //           shape: BoxShape.circle,
+                    //           border: Border.all(color: MyColors.color2, width: 2),
+                    //         ),
+                    //         child: CircleAvatar(
+                    //           radius: 30,
+                    //           backgroundColor: Colors.white,
+                    //           child: Icon(
+                    //             isSpeakerMuted ? Icons.volume_up : Icons.volume_down_sharp,
+                    //             color: MyColors.color2,
+                    //             size: 30,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 8),
+                    //       Text(isSpeakerMuted ? "Speaker on" : "Speaker Off"),
+                    //     ],
+                    //   ),
+                    // ),
 
                   ],
                 ),
 
                 const SizedBox(height: 30),
 
-                GestureDetector(
+                _isEndingCall
+                    ? const CircularProgressIndicator()
+                    : GestureDetector(
                   onTap: _leaveCall,
                   child: CircleAvatar(
                     radius: 40,

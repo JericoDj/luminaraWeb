@@ -7,9 +7,11 @@ import 'package:luminarawebsite/providers/userProvider.dart';
 import 'package:luminarawebsite/utils/constants/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:luminarawebsite/routes.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'controllers/login_controller/loginController.dart';
 import 'controllers/session_controller.dart';
 import 'firebase_options.dart';
+
 
 
 void main() async {
@@ -23,7 +25,8 @@ void main() async {
   );
 
   await GetStorage.init(); // <-- Required
-
+  // Keep screen awake
+  await WakelockPlus.enable();
 
   runApp(const MyApp());
 }

@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luminarawebsite/Footer.dart';
 
 import '../../../data/quiz_data.dart';
 import 'QuizScreen.dart';
@@ -97,6 +98,9 @@ class InsightQuestScreen extends StatelessWidget {
               _buildCategoryGrid(context),
               const SizedBox(height: 30),
               _buildFeaturedQuizzes(context),
+              const SizedBox(height: 50),
+              AppFooter(),
+
             ],
           ),
         ),
