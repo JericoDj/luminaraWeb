@@ -35,6 +35,7 @@ import 'screens/account_screen/account.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/home',
+
   routes: [
     ShellRoute(
       builder: (context, state, child) {

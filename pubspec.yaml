@@ -59,6 +59,7 @@ dependencies:
   provider: ^6.1.5
   iconsax: ^0.0.8
   uuid: ^4.5.1
+  dynamic_path_url_strategy:
 
 
 

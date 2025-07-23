@@ -153,6 +153,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  dynamic_path_url_strategy:
+    dependency: "direct main"
+    description:
+      name: dynamic_path_url_strategy
+      sha256: "34e57be27449d4d0c40ea692f37a2297bd7c991fb31a20acf66899a69d0079ff"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   equatable:
     dependency: transitive
     description:
