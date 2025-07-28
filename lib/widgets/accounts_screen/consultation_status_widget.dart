@@ -32,6 +32,8 @@ class ConsultationStatusTabsWidget extends StatelessWidget {
               _buildDetailRow("Status", consultation.status.capitalizeFirst ?? "-"),
               if (consultation.meetingLink != null && consultation.meetingLink!.isNotEmpty)
                 _buildDetailRow("Meeting Link", consultation.meetingLink!, isLink: true, context: context),
+              if (consultation.resultLink != null && consultation.resultLink!.isNotEmpty)
+                _buildDetailRow("Result Link", consultation.resultLink!, isLink: true, context: context),
               if (consultation.specialist != null && consultation.specialist!.isNotEmpty)
                 _buildDetailRow("Specialist", consultation.specialist!),
             ],
@@ -141,8 +143,8 @@ class ConsultationStatusTabsWidget extends StatelessWidget {
                 _buildStatusIcon(Icons.schedule, "Scheduled", "scheduled", controller.calculateScheduledCount, () {
                   _updateStatus("scheduled");
                 }),
-                _buildStatusIcon(Icons.check_circle, "Finished", "completed", controller.calculateFinishedCount, () {
-                  _updateStatus("completed");
+                _buildStatusIcon(Icons.check_circle, "Completed", "finished", controller.calculateFinishedCount, () {
+                  _updateStatus("finished");
                 }),
               ],
             ),

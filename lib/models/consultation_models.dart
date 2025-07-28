@@ -10,6 +10,7 @@ class Consultation {
   final String createdDate;
   final String createdTime;
   final String? meetingLink; // ✅ Added optional field
+  final String? resultLink;
   final String? specialist; // ✅ Added optional field
 
   Consultation({
@@ -21,6 +22,7 @@ class Consultation {
     required this.createdDate,
     required this.createdTime,
     this.meetingLink, // ✅ Optional
+    this.resultLink,
     this.specialist, // ✅ Optional
   });
 
@@ -47,6 +49,7 @@ class Consultation {
       createdDate: formattedDate, // ✅ Properly formatted created date
       createdTime: formattedTime, // ✅ Properly formatted created time
       meetingLink: data.containsKey('meeting_link') ? data['meeting_link'] : null, // ✅ Check if exists
+      resultLink: data.containsKey('result_link') ? data['result_link'] : null,
       specialist: data.containsKey('specialist') ? data['specialist'] : null, // ✅ Check if exists
     );
   }

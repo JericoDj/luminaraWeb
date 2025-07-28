@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import '../Footer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../widgets/homescreen_widgets/safe_talk_button.dart';
 
 class MainContentArea extends StatefulWidget {
@@ -207,7 +208,7 @@ class _MainContentAreaState extends State<MainContentArea> {
       children: [
         _storeButton(
           imagePath: 'assets/images/GooglePlayDL.png',
-          onPressed: () => _showComingSoonDialog("Google Play"),
+          onPressed: _launchLuminaraAppOrStore,
         ),
         const SizedBox(width: 12),
         _storeButton(
@@ -217,6 +218,7 @@ class _MainContentAreaState extends State<MainContentArea> {
       ],
     );
   }
+
 
   Widget _storeButton({required String imagePath, required VoidCallback onPressed}) {
     return Builder(
@@ -234,6 +236,26 @@ class _MainContentAreaState extends State<MainContentArea> {
         );
       },
     );
+  }
+
+  void _launchLuminaraAppOrStore() async {
+    const packageName = 'com.lightlevel.luminara';
+
+    // First try to open the app using Android intent
+    final intentUri = Uri.parse("intent://#Intent;package=com.lightlevel.luminara;end");
+
+    if (await canLaunchUrl(intentUri)) {
+      await launchUrl(intentUri, mode: LaunchMode.externalApplication);
+    } else {
+      final storeUri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName");
+      if (await canLaunchUrl(storeUri)) {
+        await launchUrl(storeUri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to open the store or app')),
+        );
+      }
+    }
   }
   void _showComingSoonDialog(String storeName) {
     showDialog(
