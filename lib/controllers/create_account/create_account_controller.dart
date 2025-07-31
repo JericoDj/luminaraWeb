@@ -1,21 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/userProvider.dart';
 import '../../utils/storage/user_storage.dart';
-import '../../widgets/navigation_bar.dart';
 import '../login_controller/loginController.dart';
 
-class SignUpController {
+class SignUpController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final UserStorage _userStorage = UserStorage(); // User storage for UID
-  final loginController = Get.find<LoginController>();
+  final UserStorage _userStorage = UserStorage();
 
   final formKey = GlobalKey<FormState>();
-
 
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
@@ -24,27 +22,26 @@ class SignUpController {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final companyIdController = TextEditingController();
-  var isLoading = false.obs;
 
-
-  var isPasswordVisible = false.obs;
-  var isConfirmPasswordVisible = false.obs;
+  bool isLoading = false;
+  bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
 
   void togglePasswordVisibility() {
-    isPasswordVisible.value = !isPasswordVisible.value;
+    isPasswordVisible = !isPasswordVisible;
+    notifyListeners();
   }
 
   void toggleConfirmPasswordVisibility() {
-    isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
-
-
+    isConfirmPasswordVisible = !isConfirmPasswordVisible;
+    notifyListeners();
   }
 
-  /// **🔹 Sign Up Function**
   Future<void> signUp(BuildContext context) async {
     if (!formKey.currentState!.validate()) return;
 
-    isLoading.value = true;
+    isLoading = true;
+    notifyListeners();
 
     final String companyId = companyIdController.text.trim();
     final String email = emailController.text.trim().toLowerCase();
@@ -54,14 +51,14 @@ class SignUpController {
     final String phone = phoneController.text.trim();
 
     try {
-      // Step 1: Check company ID
+      // Step 1: Validate company ID
       final companyRef = await _firestore.collection("companies").doc(companyId).get();
       if (!companyRef.exists) {
         _showSnackBar(context, "Company ID does not exist.", Colors.red);
         return;
       }
 
-      // Step 2: Check email in subcollection
+      // Step 2: Validate email under company
       final usersRef = _firestore.collection("companies").doc(companyId).collection("users");
       final userSnapshot = await usersRef.where('email', isEqualTo: email).get();
       if (userSnapshot.docs.isEmpty) {
@@ -69,7 +66,7 @@ class SignUpController {
         return;
       }
 
-      // Step 3: Check if email already exists in Auth
+      // Step 3: Check for existing Auth user
       User? existingUser;
       try {
         final methods = await _auth.fetchSignInMethodsForEmail(email);
@@ -77,11 +74,9 @@ class SignUpController {
           final signInResult = await _auth.signInWithEmailAndPassword(email: email, password: password);
           existingUser = signInResult.user;
         }
-      } catch (_) {
-        // continue
-      }
+      } catch (_) {}
 
-      // Step 4: Create new user or reuse existing
+      // Step 4: Create or reuse user
       String uid;
       if (existingUser != null) {
         uid = existingUser.uid;
@@ -90,11 +85,11 @@ class SignUpController {
         uid = userCredential.user!.uid;
       }
 
-      // Step 5: Save UID locally
+      // Step 5: Store UID
       await _userStorage.clearUid();
       await _userStorage.saveUid(uid);
 
-      // Step 6: Save to Firestore
+      // Step 6: Save profile data
       await _firestore.collection("users").doc(uid).set({
         "uid": uid,
         "email": email,
@@ -105,26 +100,28 @@ class SignUpController {
         "24/7_access": false,
       }, SetOptions(merge: true));
 
-      // Step 7: Save to storage
+      // Step 7: Save locally
       _userStorage.saveFullName(fullName);
       _userStorage.saveCompanyId(companyId);
       _userStorage.saveUsername(username);
-      _userStorage.getPhoneNumber();
+      _userStorage.savePhoneNumber(phone);
       await _userStorage.saveFCMToken();
 
+      final loginController = Provider.of<LoginController>(context, listen: false);
       await loginController.checkAndStoreSafeCommunityAccess();
 
-      // ✅ Navigate to dashboard
-      if (context.mounted) {
-        context.go('/dashboard');
-        _showSnackBar(context, "Account created successfully!", Colors.green);
-      }
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.loadUserData();
+
+      context.go('/home');
+      _showSnackBar(context, "Account created successfully!", Colors.green);
     } on FirebaseAuthException catch (e) {
       _showSnackBar(context, e.message ?? "Account creation failed.", Colors.red);
     } catch (e) {
       _showSnackBar(context, "Something went wrong: ${e.toString()}", Colors.red);
     } finally {
-      isLoading.value = false;
+      isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -137,7 +134,4 @@ class SignUpController {
       ),
     );
   }
-
-
-
 }
