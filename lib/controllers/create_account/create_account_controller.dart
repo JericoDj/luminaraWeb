@@ -44,7 +44,7 @@ class SignUpController extends ChangeNotifier {
     notifyListeners();
 
     final String companyId = companyIdController.text.trim();
-    final String email = emailController.text.trim().toLowerCase();
+    final String email = emailController.text.trim();
     final String password = passwordController.text.trim();
     final String username = usernameController.text.trim();
     final String fullName = fullNameController.text.trim();
