@@ -171,7 +171,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const TextSpan(
-                      text: "- Please inform us **at least 48 hours in advance** if you need to cancel or reschedule a session.\n"
+                      text: "- Please inform us at least 48 hours in advance if you need to cancel or reschedule a session.\n"
                           "- Failure to notify us in advance will result in a **paid session**.\n\n",
                     ),
 
@@ -180,7 +180,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const TextSpan(
-                      text: "- If you are not present within **30 minutes** of the scheduled session, it will be considered a **no-show**.\n"
+                      text: "- If you are not present within 30 minutes of the scheduled session, it will be considered a no-show.\n"
                           "- If you expect to be late, please inform us. The session will continue for the remaining scheduled time.\n\n",
                     ),
 
