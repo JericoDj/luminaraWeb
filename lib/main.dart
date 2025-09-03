@@ -8,6 +8,7 @@ import 'package:luminarawebsite/utils/constants/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:luminarawebsite/routes.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'controllers/create_account/create_account_controller.dart';
 import 'controllers/login_controller/loginController.dart';
 import 'controllers/session_controller.dart';
 import 'firebase_options.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoginController()),
+        ChangeNotifierProvider(create: (_) => SignUpController()),
         ChangeNotifierProvider(create: (_) => UserProvider()..loadUserData()),
 
         // Add more controllers if needed
