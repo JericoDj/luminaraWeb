@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../Footer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -208,16 +211,35 @@ class _MainContentAreaState extends State<MainContentArea> {
       children: [
         _storeButton(
           imagePath: 'assets/images/GooglePlayDL.png',
-          onPressed: _launchLuminaraAppOrStore,
+          onPressed: () => _openGooglePlay(),
         ),
         const SizedBox(width: 12),
         _storeButton(
           imagePath: 'assets/images/AppStoreDL.png',
-          onPressed: () => _showComingSoonDialog("App Store"),
+          onPressed: () => _openAppleStore(),
         ),
       ],
     );
   }
+
+  void _openGooglePlay() async {
+    final uri = Uri.parse(
+        "https://play.google.com/store/apps/details?id=com.lightlevel.luminara");
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _openAppleStore() async {
+    final uri = Uri.parse(
+        "https://apps.apple.com/ph/app/luminara/id6752812789");
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
 
 
   Widget _storeButton({required String imagePath, required VoidCallback onPressed}) {
@@ -238,38 +260,59 @@ class _MainContentAreaState extends State<MainContentArea> {
     );
   }
 
-  void _launchLuminaraAppOrStore() async {
-    const packageName = 'com.lightlevel.luminara';
+  //https://apps.apple.com/ph/app/luminara/id6752812789
+  void _launchLuminaraAppOrStore(BuildContext context) async {
+    try {
+      Uri uri;
 
-    // First try to open the app using Android intent
-    final intentUri = Uri.parse("intent://#Intent;package=com.lightlevel.luminara;end");
+      if (kIsWeb) {
+        // Open Play Store web link for web users
+        uri = Uri.parse('https://play.google.com/store/apps/details?id=com.lightlevel.luminara');
+      } else if (Platform.isAndroid) {
+        const packageName = 'com.lightlevel.luminara';
+        final intentUri = Uri.parse("intent://#Intent;package=$packageName;end");
 
-    if (await canLaunchUrl(intentUri)) {
-      await launchUrl(intentUri, mode: LaunchMode.externalApplication);
-    } else {
-      final storeUri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName");
-      if (await canLaunchUrl(storeUri)) {
-        await launchUrl(storeUri, mode: LaunchMode.externalApplication);
+        if (await canLaunchUrl(intentUri)) {
+          await launchUrl(intentUri, mode: LaunchMode.externalApplication);
+          return;
+        } else {
+          uri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName");
+        }
+      } else if (Platform.isIOS) {
+        uri = Uri.parse('https://apps.apple.com/ph/app/luminara/id6752812789');
       } else {
+        // Fallback for desktop or other platforms
+        uri = Uri.parse('https://play.google.com/store/apps/details?id=com.lightlevel.luminara');
+      }
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Unable to open the store or app')),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
-  void _showComingSoonDialog(String storeName) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('$storeName'),
-        content: const Text('Coming Soon'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showComingSoonDialog(String storeName) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: Text('$storeName'),
+  //       content: const Text('Coming Soon'),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.of(context).pop(),
+  //           child: const Text('OK'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
