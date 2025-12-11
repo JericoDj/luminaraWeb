@@ -138,7 +138,7 @@ final GoRouter router = GoRouter(
           builder: (context, state) => QueueScreen(
             sessionType: state.pathParameters['sessionType']!,
             userId: state.pathParameters['userId']!,
-            queueDocId: state.pathParameters['queueDocId']!,
+
           ),
         ),
         GoRoute(
@@ -146,7 +146,7 @@ final GoRouter router = GoRouter(
           builder: (context, state) => QueueScreen(
             sessionType: state.pathParameters['sessionType']!,
             userId: state.pathParameters['userId']!,
-            queueDocId: state.pathParameters['queueDocId']!,
+
           ),
         ),
 
