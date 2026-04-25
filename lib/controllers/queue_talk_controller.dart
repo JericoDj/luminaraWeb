@@ -78,20 +78,50 @@ class TalkController extends GetxController {
     }
   }
 
+  Timestamp? myTimestamp;
+  StreamSubscription<QuerySnapshot>? _positionSub;
+  StreamSubscription<DocumentSnapshot>? _selfSub;
+
   void _trackQueuePosition() {
     final collectionPath = "safe_talk/${sessionType.toLowerCase()}/queue";
 
-    FirebaseFirestore.instance
+    // ✅ 1. Listen to my own document to lock my timestamp
+    _selfSub = FirebaseFirestore.instance
         .collection(collectionPath)
-        .orderBy("timestamp", descending: false)
+        .doc(userId)
         .snapshots()
         .listen((snapshot) {
-      int position = 1;
-      for (var doc in snapshot.docs) {
-        if (doc.id == userId) break;
-        position++;
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        final ts = data['timestamp'];
+        if (ts != null && myTimestamp == null) {
+          myTimestamp = ts;
+        }
       }
-      queuePosition.value = position;
+    });
+
+    // ✅ 2. Listen to all users in 'queue' and count those ahead of me
+    _positionSub = FirebaseFirestore.instance
+        .collection(collectionPath)
+        .where('status', isEqualTo: 'queue')
+        .snapshots()
+        .listen((snapshot) {
+      if (myTimestamp == null) return;
+
+      int aheadOfMe = 0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final ts = data['timestamp'];
+
+        if (ts == null) continue;
+
+        // ✅ Only count users who joined BEFORE me
+        if (ts.compareTo(myTimestamp!) < 0) {
+          aheadOfMe++;
+        }
+      }
+
+      queuePosition.value = aheadOfMe + 1;
     });
   }
 
@@ -108,7 +138,10 @@ class TalkController extends GetxController {
     if (hasLeftQueue.value || isNavigating.value) return;
     hasLeftQueue.value = true;
     await queueSubscription?.cancel();
+    await _positionSub?.cancel();
+    await _selfSub?.cancel();
   }
+
 
   Future<void> handleCallStart() async {
     if (isOngoing.value && sessionType.toLowerCase() == "talk") {

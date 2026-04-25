@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
 
 import '../../controllers/call_controller.dart';
 
@@ -289,7 +291,14 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
+                // ✅ HIDDEN REMOTE VIDEO (REQUIRED FOR AUDIO ON WEB)
+                SizedBox(
+                  width: 1,
+                  height: 1,
+                  child: RTCVideoView(_callController.remoteVideo),
+                ),
                 Text(
+
                   connectingLoading
                       ? (_waitingCount > 0
                       ? "$_waitingCount waiting in queue..."

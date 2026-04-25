@@ -13,17 +13,16 @@ import 'controllers/login_controller/loginController.dart';
 import 'controllers/session_controller.dart';
 import 'firebase_options.dart';
 
-
-
 void main() async {
+  // ✅ Move this to the very top
+  GoogleFonts.config.allowRuntimeFetching = false;
+  
   setPathUrlStrategy();
-
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await GetStorage.init(); // <-- Required
   // Keep screen awake
@@ -31,6 +30,7 @@ void main() async {
 
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -19,8 +19,9 @@ class CallController {
   MediaStream? localStream;
 
   bool isAudioOn = true;
-  bool isVideoOn = true;
+  bool isVideoOn = false; // ✅ Default to video OFF
   bool isFrontCameraSelected = true;
+
   bool _isNavigating = false;
 
   CallController({
@@ -35,23 +36,38 @@ class CallController {
     try {
       await remoteVideo.initialize();
       remoteVideo.muted = false; // ✅ Ensure audio is not muted
-      await remoteVideo.audioOutput('default'); // or the actual device ID if known
-
 
       peerConnection?.onTrack = (event) {
         final kind = event.track.kind;
         debugPrint("📥 Track received: $kind");
 
         if (event.streams.isNotEmpty) {
-          remoteVideo.srcObject = event.streams.first;
-          final audioTracks = event.streams.first.getAudioTracks();
-          debugPrint("🔊 Remote audio tracks: ${audioTracks.length}");
+          final stream = event.streams.first;
+          remoteVideo.srcObject = stream;
+          
+          // ✅ EXPLICITLY ENABLE REMOTE AUDIO
+          for (var track in stream.getAudioTracks()) {
+            debugPrint("🔊 Enabling remote audio track: ${track.id}");
+            track.enabled = true;
+          }
+          
+          final audioTracks = stream.getAudioTracks();
+          debugPrint("🔊 Remote audio tracks found: ${audioTracks.length}");
         } else {
-          debugPrint("⚠️ No streams attached to remote track.");
+          debugPrint("⚠️ Track received without streams. Creating a temporary stream...");
+          createLocalMediaStream('remote_stream').then((stream) {
+            stream.addTrack(event.track);
+            remoteVideo.srcObject = stream;
+            if (event.track.kind == 'audio') {
+              event.track.enabled = true;
+            }
+          });
         }
 
         onConnectionEstablished();
       };
+
+
 
       if (roomId == null) {
         String newRoomId = await fbCallService.call();
@@ -71,9 +87,14 @@ class CallController {
     peerConnection = await fbCallService.createPeer();
 
     final mediaConstraints = {
-      'audio': isAudioOn,
+      'audio': {
+        'echoCancellation': true,
+        'noiseSuppression': true,
+        'autoGainControl': true,
+      },
       'video': isVideoOn,
     };
+
 
     localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 

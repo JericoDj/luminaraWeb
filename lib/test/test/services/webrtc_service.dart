@@ -121,7 +121,8 @@ class WebRtcService extends ChangeNotifier {
         ),
       );
 
-      final description = await peerConnection.createAnswer();
+      final description = await peerConnection.createAnswer(offerSdpConstraints);
+
       final answer = {
         'answer': {'sdp': description.sdp, 'type': description.type}
       };
