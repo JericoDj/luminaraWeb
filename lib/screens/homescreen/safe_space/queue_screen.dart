@@ -198,63 +198,27 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
 
 
-  Timestamp? myTimestamp;
-  StreamSubscription<QuerySnapshot>? _positionSub;
-  StreamSubscription<DocumentSnapshot>? _selfSub;
-
   void _trackQueuePosition() {
     String collectionPath = "safe_talk/${widget.sessionType.toLowerCase()}/queue";
 
-    // ✅ 1. Listen to my own document to lock my timestamp
-    _selfSub = FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection(collectionPath)
-        .doc(widget.userId)
+        .orderBy("timestamp", descending: false)
         .snapshots()
         .listen((snapshot) {
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-        final ts = data['timestamp'];
-        if (ts != null && myTimestamp == null) {
-          if (mounted) {
-            setState(() {
-              myTimestamp = ts;
-            });
-          }
-        }
-      }
-    });
+      if (!mounted) return;
 
-    // ✅ 2. Listen to all users in 'queue' and count those ahead of me
-    _positionSub = FirebaseFirestore.instance
-        .collection(collectionPath)
-        .where('status', isEqualTo: 'queue')
-        .snapshots()
-        .listen((snapshot) {
-      if (myTimestamp == null) return;
-
-      int aheadOfMe = 0;
+      int position = 1;
       for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final ts = data['timestamp'];
-
-        if (ts == null) continue;
-
-        // ✅ Only count users who joined BEFORE me
-        if (ts.compareTo(myTimestamp!) < 0) {
-          aheadOfMe++;
-        }
+        if (doc.id == widget.userId) break;
+        position++;
       }
 
-      if (mounted) {
-        setState(() {
-          queuePosition = aheadOfMe + 1;
-        });
-      }
+      setState(() {
+        queuePosition = position;
+      });
     });
   }
-
-
-
 
   Future<void> _saveRoomToFirestore(String roomId) async {
     if (widget.sessionType.isEmpty || widget.userId.isEmpty) {
@@ -308,8 +272,6 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
   void dispose() {
     queueSubscription?.cancel();
     ongoingSubscription?.cancel(); // ✅ Dispose Second Listener
-    _positionSub?.cancel();
-    _selfSub?.cancel();
     WakelockPlus.disable(); // 🔓 Allow screen to sleep again
     WidgetsBinding.instance.removeObserver(this);
 
@@ -319,7 +281,6 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {

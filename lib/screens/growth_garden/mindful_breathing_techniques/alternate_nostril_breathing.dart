@@ -122,16 +122,17 @@ class _AlternateNostrilBreathingScreenState
       _animationController.reverse(from: 1);
     }
   }
-
   void _pauseBreathing() {
     setState(() {
       _isPlaying = false;
       _buttonText = "Start Meditation";
       _countdown = 4;
-      _stepIndex = -1;
     });
-    _animationController.stop();
+
     if (_timer.isActive) _timer.cancel();
+
+    // 👇 Smoothly shrink back
+    _animationController.reverse(from: _animationController.value);
   }
 
   @override

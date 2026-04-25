@@ -120,16 +120,17 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
       _animationController.stop();
     }
   }
-
   void _pauseBreathing() {
     setState(() {
       _isPlaying = false;
       _buttonText = "Start Meditation";
       _countdown = 4;
-      _stepIndex = -1;
     });
-    _animationController.stop();
+
     if (_timer.isActive) _timer.cancel();
+
+    // 👇 Smoothly shrink back
+    _animationController.reverse(from: _animationController.value);
   }
 
   @override
