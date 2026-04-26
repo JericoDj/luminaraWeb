@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 
 import '../../controllers/call_controller.dart';
 
+import '../../providers/userProvider.dart';
 import '../../test/test/services/webrtc_service.dart';
 import '../../utils/constants/colors.dart';
 import '../../widgets/navigation_bar.dart';
@@ -184,17 +186,22 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
     }
 
     try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final fullName = userProvider.fullName ?? "Anonymous";
+
       await FirebaseFirestore.instance
           .collection("customer_support/voice/sessions")
           .doc(_currentUserId)
           .set({
         'sessionType': 'Customer Support',
         'userId': _currentUserId,
+        'fullName': fullName, // ✅ Added for Admin identification
         'roomId': roomId,
         'status': 'waiting',
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
+
       print("❌ Error saving room ID: $e");
     }
   }

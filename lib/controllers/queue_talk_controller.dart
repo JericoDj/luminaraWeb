@@ -100,18 +100,38 @@ class TalkController extends GetxController {
       }
     });
 
-    // ✅ 2. Listen to all users in 'queue' and count those ahead of me
+    // ✅ 2. Listen to all users in 'queue' (Sorting in-memory to avoid index requirement)
     _positionSub = FirebaseFirestore.instance
         .collection(collectionPath)
         .where('status', isEqualTo: 'queue')
         .snapshots()
         .listen((snapshot) {
-      if (myTimestamp == null) return;
+      
+      // ✅ Sort documents by timestamp in-memory
+      final sortedDocs = snapshot.docs.toList()
+        ..sort((a, b) {
+          final tsA = (a.data() as Map<String, dynamic>)['timestamp'] as Timestamp?;
+          final tsB = (b.data() as Map<String, dynamic>)['timestamp'] as Timestamp?;
+          if (tsA == null) return 1;
+          if (tsB == null) return -1;
+          return tsA.compareTo(tsB);
+        });
+
+      // If we don't have our timestamp yet, we can estimate position from the list
+      if (myTimestamp == null) {
+        int pos = 1;
+        for (var doc in sortedDocs) {
+          if (doc.id == userId) break;
+          pos++;
+        }
+        queuePosition.value = pos;
+        return;
+      }
 
       int aheadOfMe = 0;
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final ts = data['timestamp'];
+      for (var doc in sortedDocs) {
+        final data = doc.data() as Map<String, dynamic>;
+        final ts = data['timestamp'] as Timestamp?;
 
         if (ts == null) continue;
 
@@ -124,6 +144,8 @@ class TalkController extends GetxController {
       queuePosition.value = aheadOfMe + 1;
     });
   }
+
+
 
   Future<void> _saveRoomToFirestore(String roomId) async {
     final collectionPath = "safe_talk/${sessionType.toLowerCase()}/queue";

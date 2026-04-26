@@ -8,7 +8,6 @@ import 'screens/MainContentArea.dart';
 import 'screens/loginscreen.dart';
 import 'screens/createaccount.dart';
 import 'screens/forgotpassword.dart';
-import 'screens/homePage.dart';
 import 'screens/book_now/booknowscreen.dart';
 import 'screens/account_screen/account.dart';
 import 'screens/account_screen/app_settings/app_settings_screen.dart';
@@ -138,7 +137,7 @@ final GoRouter router = GoRouter(
           builder: (context, state) => QueueScreen(
             sessionType: state.pathParameters['sessionType']!,
             userId: state.pathParameters['userId']!,
-
+            queueDocId: state.pathParameters['queueDocId']!,
           ),
         ),
         GoRoute(
@@ -146,9 +145,10 @@ final GoRouter router = GoRouter(
           builder: (context, state) => QueueScreen(
             sessionType: state.pathParameters['sessionType']!,
             userId: state.pathParameters['userId']!,
-
+            queueDocId: state.pathParameters['queueDocId']!,
           ),
         ),
+
 
         // CALL FLOW
         GoRoute(

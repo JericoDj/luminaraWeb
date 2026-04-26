@@ -1,186 +1,181 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter/services.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../utils/constants/colors.dart';
-class VideoItem {
-  final String title;
-  final String description;
-  final String thumbnail;
-  final String videoUrl;
-  final bool isYouTube;
-  final int order; // Add order field
-
-  const VideoItem({
-    required this.title,
-    required this.description,
-    required this.thumbnail,
-    required this.videoUrl,
-    required this.isYouTube,
-    required this.order,
-  });
-
-  factory VideoItem.fromMap(Map<String, dynamic> map) {
-    return VideoItem(
-      title: map['title'] ?? 'Untitled',
-      description: map['description'] ?? 'No description',
-      thumbnail: map['thumbnail'] ?? '',
-      videoUrl: map['videoUrl'] ?? '',
-      isYouTube: _isYouTubeUrl(map['videoUrl'] ?? ''),
-      order: map['order'] ?? 0,
-    );
-  }
-
-  static bool _isYouTubeUrl(String url) {
-    return url.contains('youtube.com') || url.contains('youtu.be');
-  }
-}
+import '../../models/mindhub_models.dart';
+import '../../providers/mindhub_provider.dart';
+import 'package:provider/provider.dart';
 
 class MindHubVideosScreen extends StatelessWidget {
   const MindHubVideosScreen({Key? key}) : super(key: key);
 
-  Future<List<VideoItem>> _fetchVideosFromFirestore() async {
-
-
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('contents')
-          .doc('videos')
-          .get();
-
-      if (!doc.exists) return [];
-
-      final data = doc.data()!;
-      final List<VideoItem> videos = [];
-
-      data.forEach((key, value) {
-        if (value is Map<String, dynamic>) {
-          videos.add(VideoItem.fromMap(value));
-        }
-      });
-
-      // Sort videos by order field
-      videos.sort((a, b) => a.order.compareTo(b.order));
-      return videos;
-    } catch (e) {
-      print('Error fetching videos: $e');
-      return [];
-    }
-  }
-
-
   void _showVideoDialog(BuildContext context, VideoItem video) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allow tapping outside to dismiss
+      barrierDismissible: true,
       builder: (context) => VideoPlayerDialog(video: video),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final mindHubProvider = Provider.of<MindHubProvider>(context);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mindHubProvider.videos.isEmpty && !mindHubProvider.isLoading) {
+        mindHubProvider.fetchData();
+      }
+    });
+
     return Scaffold(
-
-      body: FutureBuilder<List<VideoItem>>(
-        future: _fetchVideosFromFirestore(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No videos found.'));
-          }
-
-          final videos = snapshot.data!;
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: videos.length,
-                itemBuilder: (context, index) {
-                  final video = videos[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: InkWell(
-                      onTap: () => _showVideoDialog(context, video),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                            child: Image.network(
-                              video.thumbnail,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (_, child, progress) {
-                                if (progress == null) return child;
-                                return Container(
-                                  color: Colors.grey[200],
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      value: progress.expectedTotalBytes != null
-                                          ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                          : null,
-                                    ),
-                                  ),
-                                );
-                              },
-                              errorBuilder: (_, __, ___) => Container(
-                                color: Colors.grey[200],
-                                alignment: Alignment.center,
-                                child: const Icon(Icons.error, color: Colors.red),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(video.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 8),
-                                Text(
-                                  video.description,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+      body: mindHubProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () async {
+                await mindHubProvider.fetchData(force: true);
+                if (mindHubProvider.isRateLimited) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please wait 30 seconds before refreshing again.')),
                   );
-                },
+                }
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Mental Wellness Videos",
+                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                            ),
+                            if (mindHubProvider.isRateLimited)
+                              const Text("Cooldown active...", style: TextStyle(color: Colors.red, fontSize: 12)),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: mindHubProvider.videos.length,
+                          itemBuilder: (context, index) => _buildVideoCard(context, mindHubProvider.videos[index]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          );
+    );
+  }
 
-        },
+  Widget _buildVideoCard(BuildContext context, VideoItem video) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: InkWell(
+        onTap: () => _showVideoDialog(context, video),
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Image.network(
+                video.thumbnail,
+                width: double.infinity,
+                height: 180,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  height: 180,
+                  color: Colors.grey[200],
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.error, color: Colors.red),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(video.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(
+                    video.description,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: _buildInteractionButtons(context, video.id, true),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInteractionButtons(BuildContext context, String id, bool isVideo) {
+    final provider = Provider.of<MindHubProvider>(context);
+    final choice = provider.getUserChoice(id, isVideo);
+    
+    final itemInteractions = isVideo 
+        ? provider.videos.firstWhere((v) => v.id == id).interactions
+        : provider.articles.firstWhere((a) => a.id == id).interactions;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildChoiceButton(context, 'insightful', Icons.lightbulb_outline, 'Insightful', itemInteractions['insightful']!, choice == 'insightful', id, isVideo),
+        _buildChoiceButton(context, 'helpful', Icons.thumb_up_outlined, 'Helpful', itemInteractions['helpful']!, choice == 'helpful', id, isVideo),
+        _buildChoiceButton(context, 'cannot_relate', Icons.sentiment_dissatisfied, 'Cannot Relate', itemInteractions['cannot_relate']!, choice == 'cannot_relate', id, isVideo),
+      ],
+    );
+  }
+
+  Widget _buildChoiceButton(BuildContext context, String key, IconData icon, String label, int count, bool isSelected, String id, bool isVideo) {
+    final provider = Provider.of<MindHubProvider>(context, listen: false);
+    return InkWell(
+      onTap: () => provider.updateInteraction(id, key, isVideo),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isSelected ? MyColors.color2 : Colors.grey, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            '$label ($count)',
+            style: TextStyle(
+              color: isSelected ? MyColors.color2 : Colors.grey,
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
 class VideoPlayerDialog extends StatefulWidget {
   final VideoItem video;
 
-
   const VideoPlayerDialog({Key? key, required this.video}) : super(key: key);
-
 
   @override
   _VideoPlayerDialogState createState() => _VideoPlayerDialogState();
@@ -198,30 +193,17 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     _isYouTube = widget.video.isYouTube;
 
     if (_isYouTube) {
-      final videoId = YoutubePlayerController.convertUrlToId(widget.video.videoUrl);
-      if (videoId != null && videoId.isNotEmpty) {
-        _youtubeController = YoutubePlayerController.fromVideoId(
-          videoId: videoId,
-          autoPlay: true,
-          params: const YoutubePlayerParams(
-            showControls: true,
-            showFullscreenButton: true,
-          ),
-        );
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid YouTube video link.")),
-          );
-          Navigator.of(context).pop();
-        });
-      }
+      _youtubeController = YoutubePlayerController.fromVideoId(
+        videoId: YoutubePlayerController.convertUrlToId(widget.video.videoUrl) ?? '',
+        autoPlay: true,
+        params: const YoutubePlayerParams(
+          showControls: true,
+          showFullscreenButton: true,
+        ),
+      );
     } else {
       _localController = VideoPlayerController.network(widget.video.videoUrl);
-      _localController!
-          .initialize()
-          .then((_) => setState(() {}))
-          .catchError((e) {
+      _localController!.initialize().then((_) => setState(() {})).catchError((e) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("This video can't be played on your device")),
         );
@@ -231,7 +213,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Don't forget to dispose
+    _scrollController.dispose();
     if (_isYouTube) {
       _youtubeController.close();
     } else {
@@ -252,7 +234,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
       return SizedBox(
         width: screenWidth,
         child: AspectRatio(
-          aspectRatio: 16 / 9, // Force 16:9 even for local videos
+          aspectRatio: 16 / 9,
           child: VideoPlayer(_localController!),
         ),
       );
@@ -261,14 +243,10 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    // Fixed width for large screens
     final dialogWidth = screenWidth >= 900 ? 800.0 : screenWidth * 0.95;
     final videoHeight = dialogWidth * 9 / 16;
 
@@ -297,25 +275,26 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
               ),
               child: Column(
                 children: [
-                  // Close Button
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
                       icon: const Icon(Icons.close, color: Colors.black, size: 24),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        final choice = Provider.of<MindHubProvider>(context, listen: false).getUserChoice(widget.video.id, true);
+                        if (choice == null) {
+                          _showFeedbackPrompt(context, widget.video.id, true);
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
                     ),
                   ),
-
-                  // Video Player
                   SizedBox(
                     width: dialogWidth,
                     height: videoHeight,
                     child: _buildVideoPlayer(),
                   ),
-
                   const SizedBox(height: 12),
-
-                  // Text Info
                   Text(
                     widget.video.title,
                     style: const TextStyle(
@@ -330,6 +309,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                     widget.video.description,
                     style: const TextStyle(fontSize: 14),
                   ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -339,4 +319,84 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     );
   }
 
-}
+  void _showFeedbackPrompt(BuildContext context, String id, bool isVideo) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("How did you find this?"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Please select an option below:"),
+            const SizedBox(height: 20),
+            _buildInteractionButtons(context, id, isVideo),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context).pop();
+            },
+            child: const Text("Close anyway", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: MyColors.color2),
+            onPressed: () {
+              final provider = Provider.of<MindHubProvider>(context, listen: false);
+              if (provider.getUserChoice(id, isVideo) != null) {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pop();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select an option before continuing.')),
+                );
+              }
+            },
+            child: const Text("Done", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInteractionButtons(BuildContext context, String id, bool isVideo) {
+    final provider = Provider.of<MindHubProvider>(context);
+    final choice = provider.getUserChoice(id, isVideo);
+    
+    final itemInteractions = isVideo 
+        ? provider.videos.firstWhere((v) => v.id == id).interactions
+        : provider.articles.firstWhere((a) => a.id == id).interactions;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildChoiceButton(context, 'insightful', Icons.lightbulb_outline, 'Insightful', itemInteractions['insightful']!, choice == 'insightful', id, isVideo),
+        _buildChoiceButton(context, 'helpful', Icons.thumb_up_outlined, 'Helpful', itemInteractions['helpful']!, choice == 'helpful', id, isVideo),
+        _buildChoiceButton(context, 'cannot_relate', Icons.sentiment_dissatisfied, 'Cannot Relate', itemInteractions['cannot_relate']!, choice == 'cannot_relate', id, isVideo),
+      ],
+    );
+  }
+
+  Widget _buildChoiceButton(BuildContext context, String key, IconData icon, String label, int count, bool isSelected, String id, bool isVideo) {
+    final provider = Provider.of<MindHubProvider>(context, listen: false);
+    return InkWell(
+      onTap: () => provider.updateInteraction(id, key, isVideo),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isSelected ? MyColors.color2 : Colors.grey, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            '$label ($count)',
+            style: TextStyle(
+              color: isSelected ? MyColors.color2 : Colors.grey,
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

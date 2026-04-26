@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luminarawebsite/providers/userProvider.dart';
+import 'package:luminarawebsite/providers/mindhub_provider.dart';
 import 'package:luminarawebsite/utils/constants/colors.dart';
+
 import 'package:provider/provider.dart';
 import 'package:luminarawebsite/routes.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -14,8 +16,6 @@ import 'controllers/session_controller.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  // ✅ Move this to the very top
-  GoogleFonts.config.allowRuntimeFetching = false;
   
   setPathUrlStrategy();
 
@@ -42,6 +42,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => SignUpController()),
         ChangeNotifierProvider(create: (_) => UserProvider()..loadUserData()),
+        ChangeNotifierProvider(create: (_) => MindHubProvider()),
+
 
         // Add more controllers if needed
       ],

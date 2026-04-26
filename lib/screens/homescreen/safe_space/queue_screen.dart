@@ -198,27 +198,84 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
 
 
+  Timestamp? myTimestamp;
+  StreamSubscription<QuerySnapshot>? _positionSub;
+  StreamSubscription<DocumentSnapshot>? _selfSub;
+
   void _trackQueuePosition() {
     String collectionPath = "safe_talk/${widget.sessionType.toLowerCase()}/queue";
 
-    FirebaseFirestore.instance
+    // ✅ 1. Listen to my own document to lock my timestamp
+    _selfSub = FirebaseFirestore.instance
         .collection(collectionPath)
-        .orderBy("timestamp", descending: false)
+        .doc(widget.userId)
         .snapshots()
         .listen((snapshot) {
-      if (!mounted) return;
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data != null) {
+          final ts = data['timestamp'] as Timestamp?;
+          if (ts != null && myTimestamp == null) {
+            if (mounted) {
+              setState(() {
+                myTimestamp = ts;
+              });
+            }
+          }
+        }
+      }
+    });
 
-      int position = 1;
-      for (var doc in snapshot.docs) {
-        if (doc.id == widget.userId) break;
-        position++;
+    // ✅ 2. Listen to all users in 'queue' (Sorting in-memory to avoid index requirement)
+    _positionSub = FirebaseFirestore.instance
+        .collection(collectionPath)
+        .where('status', isEqualTo: 'queue')
+        .snapshots()
+        .listen((snapshot) {
+      
+      // ✅ Sort documents by timestamp in-memory
+      final sortedDocs = snapshot.docs.toList()
+        ..sort((a, b) {
+          final tsA = (a.data() as Map<String, dynamic>)['timestamp'] as Timestamp?;
+          final tsB = (b.data() as Map<String, dynamic>)['timestamp'] as Timestamp?;
+          if (tsA == null) return 1;
+          if (tsB == null) return -1;
+          return tsA.compareTo(tsB);
+        });
+
+      // If we don't have our timestamp yet, we can estimate position from the list
+      if (myTimestamp == null) {
+        int pos = 1;
+        for (var doc in sortedDocs) {
+          if (doc.id == widget.userId) break;
+          pos++;
+        }
+        if (mounted) setState(() => queuePosition = pos);
+        return;
       }
 
-      setState(() {
-        queuePosition = position;
-      });
+      int aheadOfMe = 0;
+      for (var doc in sortedDocs) {
+        final data = doc.data() as Map<String, dynamic>;
+        final ts = data['timestamp'] as Timestamp?;
+
+        if (ts == null) continue;
+
+        // ✅ Only count users who joined BEFORE me
+        if (ts.compareTo(myTimestamp!) < 0) {
+          aheadOfMe++;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          queuePosition = aheadOfMe + 1;
+        });
+      }
     });
   }
+
+
 
   Future<void> _saveRoomToFirestore(String roomId) async {
     if (widget.sessionType.isEmpty || widget.userId.isEmpty) {
@@ -271,7 +328,9 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     queueSubscription?.cancel();
-    ongoingSubscription?.cancel(); // ✅ Dispose Second Listener
+    ongoingSubscription?.cancel();
+    _positionSub?.cancel();
+    _selfSub?.cancel();
     WakelockPlus.disable(); // 🔓 Allow screen to sleep again
     WidgetsBinding.instance.removeObserver(this);
 
@@ -281,6 +340,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {

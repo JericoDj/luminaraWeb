@@ -4,88 +4,77 @@ import 'package:luminarawebsite/Footer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/constants/colors.dart';
+import '../../utils/mindhub_rich_text.dart';
+import '../../models/mindhub_models.dart';
+import '../../providers/mindhub_provider.dart';
+import 'package:provider/provider.dart';
+
+
 
 class SafeSpaceHubArticles extends StatelessWidget {
   const SafeSpaceHubArticles({Key? key}) : super(key: key);
 
-  Future<List<Article>> _fetchArticles() async {
-    final doc = await FirebaseFirestore.instance.collection('contents').doc('articles').get();
+  // Removed _fetchArticles as it's now in the provider
 
-    if (!doc.exists) return [];
-
-    final data = doc.data()!;
-    final articles = <Article>[];
-
-    data.forEach((key, value) {
-      if (value is Map<String, dynamic>) {
-        articles.add(
-          Article(
-            title: value['title'] ?? 'Untitled',
-            imageURL: value['thumbnail'] ?? '',
-            contents: List<String>.from(value['paragraphs'] ?? []),
-            sources: value['sources'] is String
-                ? [value['sources']]
-                : List<String>.from(value['sources'] ?? []),
-          ),
-        );
-      }
-    });
-
-    // Optional: sort by order
-    articles.sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
-    return articles;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final mindHubProvider = Provider.of<MindHubProvider>(context);
+    
+    // Auto-fetch if empty
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mindHubProvider.articles.isEmpty && !mindHubProvider.isLoading) {
+        mindHubProvider.fetchData();
+      }
+    });
+
     return Scaffold(
-
-      body: FutureBuilder<List<Article>>(
-        future: _fetchArticles(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text('Error loading articles: ${snapshot.error}'));
-          }
-
-          final articles = snapshot.data ?? [];
-
-          if (articles.isEmpty) {
-            return const Center(child: Text('No articles found.'));
-          }
-
-      return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 900),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Mental Wellness Articles",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      body: mindHubProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () async {
+                await mindHubProvider.fetchData(force: true);
+                if (mindHubProvider.isRateLimited) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please wait 30 seconds before refreshing again.')),
+                  );
+                }
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Mental Wellness Articles",
+                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                            ),
+                            if (mindHubProvider.isRateLimited)
+                              const Text("Cooldown active...", style: TextStyle(color: Colors.red, fontSize: 12)),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: mindHubProvider.articles.length,
+                          itemBuilder: (context, index) => _buildArticleCard(context, mindHubProvider.articles[index]),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: articles.length,
-                      itemBuilder: (context, index) => _buildArticleCard(context, articles[index]),
-                    ),
-
-                  ],
+                  ),
                 ),
               ),
             ),
-          );
-
-        },
-      ),
     );
+
   }
 
   Widget _buildArticleCard(BuildContext context, Article article) {
@@ -110,12 +99,21 @@ class SafeSpaceHubArticles extends StatelessWidget {
               ),
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Text(article.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: MindHubRichText(
+                text: article.title,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: _buildInteractionButtons(context, article.id, false),
             ),
           ],
         ),
       ),
     );
+
   }
 
   void _showArticleDialog(BuildContext context, Article article) {
@@ -138,18 +136,27 @@ class SafeSpaceHubArticles extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      article.title,
+                    child: MindHubRichText(
+                      text: article.title,
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
+
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      final choice = Provider.of<MindHubProvider>(context, listen: false).getUserChoice(article.id, false);
+                      if (choice == null) {
+                        _showFeedbackPrompt(context, article.id, false);
+                      } else {
+                        Navigator.of(context).pop();
+                      }
+                    },
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
               const Divider(),
               // Article Content Scrollable
@@ -162,14 +169,16 @@ class SafeSpaceHubArticles extends StatelessWidget {
                       ...article.contents.map(
                             (p) => Padding(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: Text(
-                            p,
+                          child: MindHubRichText(
+                            text: p,
                             style: const TextStyle(fontSize: 16),
                           ),
+
                         ),
                       ),
                       const SizedBox(height: 16),
                       if (article.sources.isNotEmpty)
+
                         TextButton(
                           onPressed: () async {
                             final url = article.sources.first;
@@ -195,20 +204,91 @@ class SafeSpaceHubArticles extends StatelessWidget {
     );
   }
 
-}
+  }
 
-class Article {
-  final String title;
-  final String imageURL;
-  final List<String> contents;
-  final List<String> sources;
-  final int? order;
+  Widget _buildInteractionButtons(BuildContext context, String id, bool isVideo) {
+    final provider = Provider.of<MindHubProvider>(context);
+    final choice = provider.getUserChoice(id, isVideo);
+    
+    // Find the item to get current counts
+    final itemInteractions = isVideo 
+        ? provider.videos.firstWhere((v) => v.id == id).interactions
+        : provider.articles.firstWhere((a) => a.id == id).interactions;
 
-  Article({
-    required this.title,
-    required this.imageURL,
-    required this.contents,
-    required this.sources,
-    this.order,
-  });
-}
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildChoiceButton(context, 'insightful', Icons.lightbulb_outline, 'Insightful', itemInteractions['insightful']!, choice == 'insightful', id, isVideo),
+        _buildChoiceButton(context, 'helpful', Icons.thumb_up_outlined, 'Helpful', itemInteractions['helpful']!, choice == 'helpful', id, isVideo),
+        _buildChoiceButton(context, 'cannot_relate', Icons.sentiment_dissatisfied, 'Cannot Relate', itemInteractions['cannot_relate']!, choice == 'cannot_relate', id, isVideo),
+      ],
+    );
+  }
+
+  Widget _buildChoiceButton(BuildContext context, String key, IconData icon, String label, int count, bool isSelected, String id, bool isVideo) {
+    final provider = Provider.of<MindHubProvider>(context, listen: false);
+    return InkWell(
+      onTap: () => provider.updateInteraction(id, key, isVideo),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: isSelected ? MyColors.color2 : Colors.grey, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            '$label ($count)',
+            style: TextStyle(
+              color: isSelected ? MyColors.color2 : Colors.grey,
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFeedbackPrompt(BuildContext context, String id, bool isVideo) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("How did you find this?"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Please select an option below:"),
+            const SizedBox(height: 20),
+            _buildInteractionButtons(context, id, isVideo),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(); // Close prompt
+              Navigator.of(context).pop(); // Close article
+            },
+            child: const Text("Close anyway", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: MyColors.color2),
+            onPressed: () {
+              final provider = Provider.of<MindHubProvider>(context, listen: false);
+              if (provider.getUserChoice(id, isVideo) != null) {
+                Navigator.of(ctx).pop(); // Close prompt
+                Navigator.of(context).pop(); // Close article
+              } else {
+                // User hasn't picked yet
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select an option before continuing.')),
+                );
+              }
+            },
+            child: const Text("Done", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+// Removed old Article class as it's now imported from models/mindhub_models.dart
+
