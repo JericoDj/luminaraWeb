@@ -14,7 +14,7 @@ class FourSevenEightBreathingScreen extends StatefulWidget {
 
 class _FourSevenEightBreathingScreenState
     extends State<FourSevenEightBreathingScreen> with SingleTickerProviderStateMixin {
-  late Timer _timer;
+  Timer? _timer;
   late AnimationController _animationController;
   late Animation<double> _sizeAnimation;
   late Animation<double> _rippleAnimation;
@@ -105,7 +105,7 @@ class _FourSevenEightBreathingScreenState
       _countdown = 3; // Reset countdown value
       isStarting = false; // Reset the starting flag to false
     });
-    _timer.cancel();
+    _timer?.cancel();
     Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
     _animationController.reverse(from: 1); // Retract the animation back to the smallest size
   }
@@ -129,7 +129,7 @@ class _FourSevenEightBreathingScreenState
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     _animationController.dispose();
     super.dispose();
   }

@@ -13,7 +13,7 @@ class BoxBreathingScreen extends StatefulWidget {
 }
 
 class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTickerProviderStateMixin {
-  late Timer _timer;
+  Timer? _timer;
   late AnimationController _animationController;
   late Animation<double> _sizeAnimation;
   late Animation<double> _rippleAnimation;
@@ -46,7 +46,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
 
   @override
   void dispose() {
-    if (_timer.isActive) _timer.cancel();
+    if (_timer != null && _timer!.isActive) _timer!.cancel();
     _animationController.dispose();
     // Stop tracking when leaving the screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -135,7 +135,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
       _countdown = 4;
     });
 
-    if (_timer.isActive) _timer.cancel();
+    if (_timer != null && _timer!.isActive) _timer!.cancel();
 
     Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
 

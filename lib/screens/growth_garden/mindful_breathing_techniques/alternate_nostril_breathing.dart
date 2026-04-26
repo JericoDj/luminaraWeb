@@ -15,7 +15,7 @@ class AlternateNostrilBreathingScreen extends StatefulWidget {
 
 class _AlternateNostrilBreathingScreenState
     extends State<AlternateNostrilBreathingScreen> with SingleTickerProviderStateMixin {
-  late Timer _timer;
+  Timer? _timer;
   late AnimationController _animationController;
   late Animation<double> _sizeAnimation;
   late Animation<double> _rippleAnimation;
@@ -54,7 +54,7 @@ class _AlternateNostrilBreathingScreenState
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     _animationController.dispose();
     super.dispose();
   }
@@ -133,7 +133,7 @@ class _AlternateNostrilBreathingScreenState
       _countdown = 4;
     });
 
-    if (_timer.isActive) _timer.cancel();
+    if (_timer != null && _timer!.isActive) _timer!.cancel();
     Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
 
     // 👇 Smoothly shrink back

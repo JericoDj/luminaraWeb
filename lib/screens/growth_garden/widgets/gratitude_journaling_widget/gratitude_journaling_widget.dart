@@ -21,21 +21,22 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
   Map<String, List<String>> journalEntries = {};
   String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   DateTime selectedMonth = DateTime.now();
+  late final UserTrackingProvider _trackingProvider;
 
   @override
   void initState() {
     super.initState();
     // Start tracking Gratitude Journal
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Gratitude Journal');
+      _trackingProvider = Provider.of<UserTrackingProvider>(context, listen: false);
+      _trackingProvider.startTracking('Gratitude Journal');
     });
   }
 
   @override
   void dispose() {
-    // Stop tracking when leaving the screen
-    // Note: Since this is a widget, it might be disposed when navigating away
-    Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
+    // Stop tracking using cached reference (safe in dispose)
+    _trackingProvider.stopTracking(null);
     super.dispose();
   }
 
