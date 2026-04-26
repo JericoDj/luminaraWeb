@@ -5,6 +5,7 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../utils/constants/colors.dart';
 import '../../models/mindhub_models.dart';
 import '../../providers/mindhub_provider.dart';
+import '../../providers/user_tracking_provider.dart';
 import 'package:provider/provider.dart';
 
 class MindHubVideosScreen extends StatelessWidget {
@@ -84,7 +85,10 @@ class MindHubVideosScreen extends StatelessWidget {
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
-        onTap: () => _showVideoDialog(context, video),
+        onTap: () {
+          Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Videos', itemName: video.title);
+          _showVideoDialog(context, video);
+        },
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +156,10 @@ class MindHubVideosScreen extends StatelessWidget {
   Widget _buildChoiceButton(BuildContext context, String key, IconData icon, String label, int count, bool isSelected, String id, bool isVideo) {
     final provider = Provider.of<MindHubProvider>(context, listen: false);
     return InkWell(
-      onTap: () => provider.updateInteraction(id, key, isVideo),
+      onTap: () {
+        provider.updateInteraction(id, key, isVideo);
+        Provider.of<UserTrackingProvider>(context, listen: false).logEvent(context, isVideo ? 'Videos' : 'Articles', id, 'rate_$key');
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -284,6 +291,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                         if (choice == null) {
                           _showFeedbackPrompt(context, widget.video.id, true);
                         } else {
+                          Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
                           Navigator.of(context).pop();
                         }
                       },
@@ -335,6 +343,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
         actions: [
           TextButton(
             onPressed: () {
+              Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
               Navigator.of(ctx).pop();
               Navigator.of(context).pop();
             },
@@ -345,6 +354,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
             onPressed: () {
               final provider = Provider.of<MindHubProvider>(context, listen: false);
               if (provider.getUserChoice(id, isVideo) != null) {
+                Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
                 Navigator.of(ctx).pop();
                 Navigator.of(context).pop();
               } else {
@@ -381,7 +391,10 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
   Widget _buildChoiceButton(BuildContext context, String key, IconData icon, String label, int count, bool isSelected, String id, bool isVideo) {
     final provider = Provider.of<MindHubProvider>(context, listen: false);
     return InkWell(
-      onTap: () => provider.updateInteraction(id, key, isVideo),
+      onTap: () {
+        provider.updateInteraction(id, key, isVideo);
+        Provider.of<UserTrackingProvider>(context, listen: false).logEvent(context, isVideo ? 'Videos' : 'Articles', id, 'rate_$key');
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

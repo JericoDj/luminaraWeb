@@ -9,6 +9,8 @@ import '../../../utils/constants/colors.dart';
 import '../../../utils/storage/user_storage.dart';
 import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
 import '../../../widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
+import '../../../providers/user_tracking_provider.dart';
+import 'package:provider/provider.dart';
 
 class SafeTalk extends StatefulWidget {
   const SafeTalk({Key? key}) : super(key: key);
@@ -29,6 +31,11 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
     super.initState();
     userId = UserStorage().getUid(); // ✅ Get user ID from local storage
     WakelockPlus.enable(); // 🔒 Keep screen awake
+    
+    // Start tracking Safe Talk
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Safe Talk');
+    });
   }
 
   // ✅ Navigate to Queue Screen & Save Request in Firestore
@@ -144,6 +151,7 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
 
   // ✅ Open Customer Support Dialog
   void _openCustomerSupport() {
+    Provider.of<UserTrackingProvider>(context, listen: false).logEvent(context, 'Safe Talk', 'Customer Support', 'click_support');
     showDialog(
       context: context,
       builder: (context) => CallCustomerSupportPopup(),

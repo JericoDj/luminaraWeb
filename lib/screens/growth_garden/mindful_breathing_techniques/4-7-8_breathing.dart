@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../utils/constants/colors.dart';
+import '../../../providers/user_tracking_provider.dart';
+import 'package:provider/provider.dart';
 class FourSevenEightBreathingScreen extends StatefulWidget {
   const FourSevenEightBreathingScreen({super.key});
 
@@ -42,6 +44,7 @@ class _FourSevenEightBreathingScreenState
         });
       } else {
         timer.cancel();
+        Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Breathing', itemName: '4-7-8 Breathing');
         _startBreathing();
       }
     });
@@ -103,6 +106,7 @@ class _FourSevenEightBreathingScreenState
       isStarting = false; // Reset the starting flag to false
     });
     _timer.cancel();
+    Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
     _animationController.reverse(from: 1); // Retract the animation back to the smallest size
   }
 

@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../utils/constants/colors.dart';
+import '../../../providers/user_tracking_provider.dart';
+
 class AlternateNostrilBreathingScreen extends StatefulWidget {
   const AlternateNostrilBreathingScreen({super.key});
 
@@ -73,6 +76,7 @@ class _AlternateNostrilBreathingScreenState
       } else {
         timer.cancel();
         setState(() => isStarting = false);
+        Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Breathing', itemName: 'Alternate Nostril Breathing');
         _startBreathing();
       }
     });
@@ -130,6 +134,7 @@ class _AlternateNostrilBreathingScreenState
     });
 
     if (_timer.isActive) _timer.cancel();
+    Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
 
     // 👇 Smoothly shrink back
     _animationController.reverse(from: _animationController.value);

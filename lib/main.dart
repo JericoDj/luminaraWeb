@@ -5,6 +5,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luminarawebsite/providers/userProvider.dart';
 import 'package:luminarawebsite/providers/mindhub_provider.dart';
+import 'package:luminarawebsite/providers/user_tracking_provider.dart';
 import 'package:luminarawebsite/utils/constants/colors.dart';
 
 import 'package:provider/provider.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SignUpController()),
         ChangeNotifierProvider(create: (_) => UserProvider()..loadUserData()),
         ChangeNotifierProvider(create: (_) => MindHubProvider()),
+        ChangeNotifierProvider(create: (_) => UserTrackingProvider()),
 
 
         // Add more controllers if needed

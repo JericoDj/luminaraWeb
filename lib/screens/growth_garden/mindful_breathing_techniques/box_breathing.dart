@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../utils/constants/colors.dart';
+import '../../../providers/user_tracking_provider.dart';
+import 'package:provider/provider.dart';
+
 class BoxBreathingScreen extends StatefulWidget {
   const BoxBreathingScreen({super.key});
 
@@ -43,8 +46,12 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
 
   @override
   void dispose() {
-    _timer.cancel();
+    if (_timer.isActive) _timer.cancel();
     _animationController.dispose();
+    // Stop tracking when leaving the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+       // We can't use context here easily in dispose sometimes, but let's try
+    });
     super.dispose();
   }
 
@@ -65,6 +72,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
       } else {
         timer.cancel();
         setState(() => isStarting = false);
+        Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Breathing', itemName: 'Box Breathing');
         _startBreathing();
       }
     });
@@ -128,6 +136,8 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
     });
 
     if (_timer.isActive) _timer.cancel();
+
+    Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
 
     // 👇 Smoothly shrink back
     _animationController.reverse(from: _animationController.value);

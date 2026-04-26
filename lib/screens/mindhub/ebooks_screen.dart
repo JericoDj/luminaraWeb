@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../providers/user_tracking_provider.dart';
+import 'package:provider/provider.dart';
 
 class EbookItem {
   final String title;
@@ -127,7 +129,10 @@ class _MindHubEbooksScreenState extends State<MindHubEbooksScreen> {
                     itemBuilder: (context, index) {
                       final ebook = ebooks[index];
                       return GestureDetector(
-                        onTap: () => openEbook(ebook.pdfUrl),
+                        onTap: () {
+                          Provider.of<UserTrackingProvider>(context, listen: false).logEvent(context, 'Books', ebook.title, 'open_ebook');
+                          openEbook(ebook.pdfUrl);
+                        },
                         child: Card(
                           elevation: 4,
                           shape: RoundedRectangleBorder(

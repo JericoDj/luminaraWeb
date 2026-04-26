@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../monthlyjournaloverviewpage.dart';
+import '../../../../providers/user_tracking_provider.dart';
+import 'package:provider/provider.dart';
 
 class GratitudeJournalWidget extends StatefulWidget {
 
@@ -23,8 +25,18 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
   @override
   void initState() {
     super.initState();
-    // Add static data to journalEntries
+    // Start tracking Gratitude Journal
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Gratitude Journal');
+    });
+  }
 
+  @override
+  void dispose() {
+    // Stop tracking when leaving the screen
+    // Note: Since this is a widget, it might be disposed when navigating away
+    Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
+    super.dispose();
   }
 
   @override

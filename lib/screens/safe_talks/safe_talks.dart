@@ -7,6 +7,8 @@ import 'package:profanity_filter/profanity_filter.dart';
 
 import '../../utils/constants/colors.dart';
 import '../../utils/storage/user_storage.dart';
+import '../../providers/user_tracking_provider.dart';
+import 'package:provider/provider.dart';
 
 class SafeSpaceScreen extends StatefulWidget {
   final VoidCallback? onBackToHome;
@@ -50,8 +52,12 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     super.initState();
 
     _fetchPosts();
-
     _showKeepItCleanDialog();
+    
+    // Start tracking Safe Community
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Safe Community');
+    });
   }
 
   void _fetchPosts() async {
@@ -763,13 +769,19 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            children: [
+    return PopScope(
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
               const SizedBox(height: 10),
 
               const TabBar(
@@ -793,7 +805,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
   Widget _buildPostFeed() {
     return ListView(

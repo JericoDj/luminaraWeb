@@ -7,6 +7,7 @@ import '../../utils/constants/colors.dart';
 import '../../utils/mindhub_rich_text.dart';
 import '../../models/mindhub_models.dart';
 import '../../providers/mindhub_provider.dart';
+import '../../providers/user_tracking_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -83,7 +84,10 @@ class SafeSpaceHubArticles extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
       child: InkWell(
-        onTap: () => _showArticleDialog(context, article),
+        onTap: () {
+          Provider.of<UserTrackingProvider>(context, listen: false).startTracking('Articles', itemName: article.title);
+          _showArticleDialog(context, article);
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -150,6 +154,7 @@ class SafeSpaceHubArticles extends StatelessWidget {
                       if (choice == null) {
                         _showFeedbackPrompt(context, article.id, false);
                       } else {
+                        Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
                         Navigator.of(context).pop();
                       }
                     },
@@ -228,7 +233,10 @@ class SafeSpaceHubArticles extends StatelessWidget {
   Widget _buildChoiceButton(BuildContext context, String key, IconData icon, String label, int count, bool isSelected, String id, bool isVideo) {
     final provider = Provider.of<MindHubProvider>(context, listen: false);
     return InkWell(
-      onTap: () => provider.updateInteraction(id, key, isVideo),
+      onTap: () {
+        provider.updateInteraction(id, key, isVideo);
+        Provider.of<UserTrackingProvider>(context, listen: false).logEvent(context, isVideo ? 'Videos' : 'Articles', id, 'rate_$key');
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -263,6 +271,7 @@ class SafeSpaceHubArticles extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
+              Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
               Navigator.of(ctx).pop(); // Close prompt
               Navigator.of(context).pop(); // Close article
             },
@@ -273,6 +282,7 @@ class SafeSpaceHubArticles extends StatelessWidget {
             onPressed: () {
               final provider = Provider.of<MindHubProvider>(context, listen: false);
               if (provider.getUserChoice(id, isVideo) != null) {
+                Provider.of<UserTrackingProvider>(context, listen: false).stopTracking(context);
                 Navigator.of(ctx).pop(); // Close prompt
                 Navigator.of(context).pop(); // Close article
               } else {
